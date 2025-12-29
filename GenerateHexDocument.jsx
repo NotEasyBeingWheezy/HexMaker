@@ -51,8 +51,11 @@ function main() {
 
         // Set artboard position to 0,0
         // artboardRect format: [left, top, right, bottom]
-        // Setting top-left corner to 0,0
+        // Setting bottom-left corner to 0,0
         newDoc.artboards[0].artboardRect = [0, docHeight, docWidth, 0];
+
+        // Set ruler origin to match artboard origin (0,0)
+        newDoc.rulerOrigin = [0, 0];
 
         // Remove the default layer
         if (newDoc.layers.length > 0) {
