@@ -147,19 +147,32 @@ function importSVGByOpening(svgFile, targetDoc, targetLayer) {
  */
 function groupLayerContents(layer) {
     try {
-        // Get all page items on the layer
+        var doc = app.activeDocument;
+
+        // Clear selection
+        doc.selection = null;
+
+        // Select all page items on this layer
         var items = layer.pageItems;
-
-        // Only group if there are items and more than one item
         if (items.length > 0) {
-            // Create a new group on the layer
-            var group = layer.groupItems.add();
+            // Build selection array
+            var selectionArray = [];
+            for (var i = 0; i < items.length; i++) {
+                selectionArray.push(items[i]);
+            }
 
-            // Move all items into the group (iterate backwards to maintain order)
-            for (var i = items.length - 1; i >= 0; i--) {
-                items[i].moveToBeginning(group);
+            // Set the selection
+            doc.selection = selectionArray;
+
+            // Group the selection using the built-in group method
+            if (doc.selection.length > 0) {
+                app.executeMenuCommand("group");
             }
         }
+
+        // Clear selection
+        doc.selection = null;
+
     } catch (e) {
         throw new Error("Failed to group layer contents: " + e.message);
     }
