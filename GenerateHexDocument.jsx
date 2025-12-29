@@ -355,8 +355,7 @@ function applyColorToLayer(layer, rgbColor) {
                 if (item.typename == "PathItem") {
                     item.filled = true;
                     item.fillColor = rgbColor;
-                    item.stroked = true;
-                    item.strokeColor = rgbColor;
+                    item.stroked = false;
                 }
                 // If it's a group or compound path, recurse into it
                 else if (item.typename == "GroupItem") {
