@@ -85,6 +85,10 @@ function main() {
             newDoc.activeLayer = sponsorLayer;
             app.paste();
 
+            // Scale the pasted sponsor content
+            // Target: 11cm wide or 8cm high (whichever is greater in original)
+            scaleToFit(newDoc.selection, 11, 8);
+
             // Deselect all
             newDoc.selection = null;
         }
@@ -220,5 +224,50 @@ function positionLayerGroup(layer, xCm, yCm) {
         }
     } catch (e) {
         throw new Error("Failed to position layer group: " + e.message);
+    }
+}
+
+/**
+ * Scale selection to fit within specified dimensions (in cm) while maintaining aspect ratio
+ * Scales based on whichever dimension is relatively larger
+ */
+function scaleToFit(selection, targetWidthCm, targetHeightCm) {
+    try {
+        if (!selection || selection.length === 0) {
+            return;
+        }
+
+        // Convert target dimensions from cm to points
+        var targetWidthPt = targetWidthCm * 28.3464567;
+        var targetHeightPt = targetHeightCm * 28.3464567;
+
+        // Get bounding box of selection
+        var bounds = selection[0].geometricBounds;
+        for (var i = 1; i < selection.length; i++) {
+            var itemBounds = selection[i].geometricBounds;
+            bounds[0] = Math.min(bounds[0], itemBounds[0]); // left
+            bounds[1] = Math.max(bounds[1], itemBounds[1]); // top
+            bounds[2] = Math.max(bounds[2], itemBounds[2]); // right
+            bounds[3] = Math.min(bounds[3], itemBounds[3]); // bottom
+        }
+
+        // Calculate current dimensions
+        var currentWidth = bounds[2] - bounds[0];
+        var currentHeight = bounds[1] - bounds[3];
+
+        // Calculate scale factors for each dimension
+        var scaleX = (targetWidthPt / currentWidth) * 100; // Convert to percentage
+        var scaleY = (targetHeightPt / currentHeight) * 100;
+
+        // Use the smaller scale factor to ensure it fits within the target box
+        var scaleFactor = Math.min(scaleX, scaleY);
+
+        // Apply uniform scaling to all selected items
+        for (var i = 0; i < selection.length; i++) {
+            selection[i].resize(scaleFactor, scaleFactor);
+        }
+
+    } catch (e) {
+        throw new Error("Failed to scale selection: " + e.message);
     }
 }
