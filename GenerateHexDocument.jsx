@@ -604,20 +604,27 @@ function importGuidesFromSVG(svgFile, targetDoc, sponsorPosition) {
             // Get the pasted items (they're still selected)
             var pastedItems = targetDoc.selection;
 
-            // Position the guides based on mode BEFORE converting to guides
-            if (sponsorPosition == "Normal Hex Sponsor") {
-                // Position for Normal mode
-                // TODO: Add positioning coordinates for Normal mode
-                var deltaX = 0; // Placeholder
-                var deltaY = 0; // Placeholder
-                for (var i = 0; i < pastedItems.length; i++) {
-                    pastedItems[i].translate(deltaX, deltaY);
+            // Position the guides 2.5cm from top-left corner (same for both modes)
+            // Convert 2.5cm to points
+            var targetX = 2.5 * 28.3464567; // 2.5cm in points
+            var targetY = -2.5 * 28.3464567; // 2.5cm downward (negative in Illustrator coords)
+
+            // Get bounding box of all pasted items
+            if (pastedItems.length > 0) {
+                var bounds = pastedItems[0].geometricBounds;
+                for (var i = 1; i < pastedItems.length; i++) {
+                    var itemBounds = pastedItems[i].geometricBounds;
+                    bounds[0] = Math.min(bounds[0], itemBounds[0]); // left
+                    bounds[1] = Math.max(bounds[1], itemBounds[1]); // top
+                    bounds[2] = Math.max(bounds[2], itemBounds[2]); // right
+                    bounds[3] = Math.min(bounds[3], itemBounds[3]); // bottom
                 }
-            } else if (sponsorPosition == "Sweater Hex Sponsor") {
-                // Position for Sweater mode
-                // TODO: Add positioning coordinates for Sweater mode
-                var deltaX = 0; // Placeholder
-                var deltaY = 0; // Placeholder
+
+                // Calculate translation to move top-left corner to target position
+                var deltaX = targetX - bounds[0];
+                var deltaY = targetY - bounds[1];
+
+                // Apply translation to all items
                 for (var i = 0; i < pastedItems.length; i++) {
                     pastedItems[i].translate(deltaX, deltaY);
                 }
