@@ -585,6 +585,10 @@ function removeEmptyLayers(doc) {
  */
 function importGuidesFromSVG(svgFile, targetDoc, sponsorPosition) {
     try {
+        // Create a Guides layer
+        var guidesLayer = targetDoc.layers.add();
+        guidesLayer.name = "Guides";
+
         // Open the SVG file
         var svgDoc = app.open(svgFile);
 
@@ -597,6 +601,9 @@ function importGuidesFromSVG(svgFile, targetDoc, sponsorPosition) {
 
             // Switch to target document
             targetDoc.activate();
+
+            // Set Guides layer as active
+            targetDoc.activeLayer = guidesLayer;
 
             // Paste the content
             app.paste();
