@@ -129,6 +129,9 @@ function main() {
         groupLayerContents(masuriTabLayer);
 
         // Position layers
+        // Hex: X = 4.3313cm, Y = 2.4895cm (from top-left reference point)
+        positionLayerGroup(hexLayer, 4.3313, 2.4895);
+
         // Masuri Tab: X = 5.7281cm, Y = 6.8792cm (from top-left reference point)
         positionLayerGroup(masuriTabLayer, 5.7281, 6.8792);
 
