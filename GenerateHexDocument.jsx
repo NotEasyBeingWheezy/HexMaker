@@ -93,10 +93,15 @@ function main() {
         masuriTabLayer.locked = false;
         importSVGByOpening(masuriTabSVGFile, newDoc, masuriTabLayer);
 
+        // Group all items on each layer
+        groupLayerContents(sponsorLayer);
+        groupLayerContents(hexLayer);
+        groupLayerContents(masuriTabLayer);
+
         // Deselect all
         newDoc.selection = null;
 
-        alert("Document created successfully!\n\nLayers (top to bottom):\n1. Masuri Tab\n2. Hex\n3. Sponsor");
+        alert("Document created successfully!\n\nLayers (top to bottom):\n1. Masuri Tab\n2. Hex\n3. Sponsor\n\nAll layer contents have been grouped.");
 
     } catch (e) {
         alert("Error: " + e.message + "\nLine: " + e.line);
@@ -134,5 +139,28 @@ function importSVGByOpening(svgFile, targetDoc, targetLayer) {
 
     } catch (e) {
         throw new Error("Failed to import SVG: " + e.message);
+    }
+}
+
+/**
+ * Group all items on a layer
+ */
+function groupLayerContents(layer) {
+    try {
+        // Get all page items on the layer
+        var items = layer.pageItems;
+
+        // Only group if there are items and more than one item
+        if (items.length > 0) {
+            // Create a new group on the layer
+            var group = layer.groupItems.add();
+
+            // Move all items into the group (iterate backwards to maintain order)
+            for (var i = items.length - 1; i >= 0; i--) {
+                items[i].moveToBeginning(group);
+            }
+        }
+    } catch (e) {
+        throw new Error("Failed to group layer contents: " + e.message);
     }
 }
