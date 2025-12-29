@@ -467,7 +467,8 @@ function collectPathItems(items, pathArray) {
         } else if (item.typename == "GroupItem") {
             collectPathItems(item.pageItems, pathArray);
         } else if (item.typename == "CompoundPathItem") {
-            collectPathItems(item.pathItems, pathArray);
+            // Treat compound paths as a single unit (don't break apart)
+            pathArray.push(item);
         }
     }
 }
