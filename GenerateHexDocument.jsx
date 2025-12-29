@@ -36,6 +36,7 @@ function main() {
         // Define SVG file paths
         var hexSVGFile = new File(scriptFolder + "/HEX.svg");
         var masuriTabSVGFile = new File(scriptFolder + "/MASURI TAB.svg");
+        var guidesSVGFile = new File(scriptFolder + "/GUIDES.svg");
 
         // Verify SVG files exist
         if (!hexSVGFile.exists) {
@@ -44,6 +45,10 @@ function main() {
         }
         if (!masuriTabSVGFile.exists) {
             alert("MASURI TAB.svg not found at: " + masuriTabSVGFile.fsName);
+            return;
+        }
+        if (!guidesSVGFile.exists) {
+            alert("GUIDES.svg not found at: " + guidesSVGFile.fsName);
             return;
         }
 
@@ -122,6 +127,9 @@ function main() {
         newDoc.activeLayer = masuriTabLayer;
         masuriTabLayer.locked = false;
         importSVGByOpening(masuriTabSVGFile, newDoc, masuriTabLayer);
+
+        // Import GUIDES.svg and convert to guides
+        importGuidesFromSVG(guidesSVGFile, newDoc, sponsorPosition);
 
         // Group all items on each layer
         groupLayerContents(sponsorLayer);
@@ -568,5 +576,81 @@ function removeEmptyLayers(doc) {
     } catch (e) {
         // Don't throw error for layer removal - just continue
         // This prevents script failure if layer can't be removed
+    }
+}
+
+/**
+ * Import guides from SVG file and convert them to Illustrator guides
+ * Position guides based on sponsor position mode
+ */
+function importGuidesFromSVG(svgFile, targetDoc, sponsorPosition) {
+    try {
+        // Open the SVG file
+        var svgDoc = app.open(svgFile);
+
+        // Select all content in the SVG
+        svgDoc.selectObjectsOnActiveArtboard();
+
+        if (svgDoc.selection.length > 0) {
+            // Copy the content
+            app.copy();
+
+            // Switch to target document
+            targetDoc.activate();
+
+            // Paste the content
+            app.paste();
+
+            // Get the pasted items (they're still selected)
+            var pastedItems = targetDoc.selection;
+
+            // Position the guides based on mode BEFORE converting to guides
+            if (sponsorPosition == "Normal Hex Sponsor") {
+                // Position for Normal mode
+                // TODO: Add positioning coordinates for Normal mode
+                var deltaX = 0; // Placeholder
+                var deltaY = 0; // Placeholder
+                for (var i = 0; i < pastedItems.length; i++) {
+                    pastedItems[i].translate(deltaX, deltaY);
+                }
+            } else if (sponsorPosition == "Sweater Hex Sponsor") {
+                // Position for Sweater mode
+                // TODO: Add positioning coordinates for Sweater mode
+                var deltaX = 0; // Placeholder
+                var deltaY = 0; // Placeholder
+                for (var i = 0; i < pastedItems.length; i++) {
+                    pastedItems[i].translate(deltaX, deltaY);
+                }
+            }
+
+            // Convert all pasted items to guides
+            convertToGuides(pastedItems);
+        }
+
+        // Close the SVG document without saving
+        svgDoc.close(SaveOptions.DONOTSAVECHANGES);
+
+        // Return to target document
+        targetDoc.activate();
+
+    } catch (e) {
+        throw new Error("Failed to import guides: " + e.message);
+    }
+}
+
+/**
+ * Convert items to guides recursively
+ */
+function convertToGuides(items) {
+    for (var i = 0; i < items.length; i++) {
+        var item = items[i];
+
+        if (item.typename == "PathItem") {
+            item.guides = true;
+        } else if (item.typename == "GroupItem") {
+            convertToGuides(item.pageItems);
+        } else if (item.typename == "CompoundPathItem") {
+            convertToGuides(item.pathItems);
+        }
     }
 }
