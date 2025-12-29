@@ -129,12 +129,15 @@ function main() {
         importSVGByOpening(masuriTabSVGFile, newDoc, masuriTabLayer);
 
         // Import GUIDES.svg and convert to guides
-        importGuidesFromSVG(guidesSVGFile, newDoc, sponsorPosition);
+        var guidesLayer = importGuidesFromSVG(guidesSVGFile, newDoc, sponsorPosition);
 
         // Group all items on each layer
         groupLayerContents(sponsorLayer);
         groupLayerContents(hexLayer);
         groupLayerContents(masuriTabLayer);
+        if (guidesLayer) {
+            groupLayerContents(guidesLayer);
+        }
 
         // Position layers based on sponsor position mode
         if (sponsorPosition == "Normal Hex Sponsor") {
@@ -647,9 +650,13 @@ function importGuidesFromSVG(svgFile, targetDoc, sponsorPosition) {
         // Return to target document
         targetDoc.activate();
 
+        // Return the guides layer
+        return guidesLayer;
+
     } catch (e) {
         throw new Error("Failed to import guides: " + e.message);
     }
+    return null;
 }
 
 /**
