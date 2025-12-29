@@ -106,6 +106,10 @@ function main() {
         groupLayerContents(hexLayer);
         groupLayerContents(masuriTabLayer);
 
+        // Position layers
+        // Masuri Tab: X = 5.7281cm, Y = 6.8792cm (from top-left reference point)
+        positionLayerGroup(masuriTabLayer, 5.7281, 6.8792);
+
         // Deselect all
         newDoc.selection = null;
 
@@ -183,5 +187,38 @@ function groupLayerContents(layer) {
 
     } catch (e) {
         throw new Error("Failed to group layer contents: " + e.message);
+    }
+}
+
+/**
+ * Position a layer's group to specific coordinates (in cm)
+ * Positions the top-left corner of the group's bounding box to the specified coordinates
+ * Note: Y coordinate is measured downward from the ruler origin (top-left)
+ */
+function positionLayerGroup(layer, xCm, yCm) {
+    try {
+        // Convert cm to points (1 cm = 28.3464567 points)
+        var xPoints = xCm * 28.3464567;
+        var yPoints = yCm * 28.3464567;
+
+        // Get the first groupItem on the layer (created by groupLayerContents)
+        if (layer.groupItems.length > 0) {
+            var group = layer.groupItems[0];
+
+            // Get current position (top-left of bounding box)
+            var bounds = group.geometricBounds; // [left, top, right, bottom]
+            var currentLeft = bounds[0];
+            var currentTop = bounds[1];
+
+            // Calculate how much to move
+            // In Illustrator, Y increases upward, so moving down is negative
+            var deltaX = xPoints - currentLeft;
+            var deltaY = -yPoints - currentTop; // Negative because we're moving down from top
+
+            // Translate the group
+            group.translate(deltaX, deltaY);
+        }
+    } catch (e) {
+        throw new Error("Failed to position layer group: " + e.message);
     }
 }
