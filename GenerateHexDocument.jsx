@@ -262,7 +262,7 @@ function createHexPaths(layer) {
     // Create each path
     for (var i = 0; i < hexPaths.length; i++) {
         var pathItem = layer.pathItems.add();
-        pathItem.setEntirePath(parseSVGPath(hexPaths[i]));
+        applyPathPoints(pathItem, parseSVGPath(hexPaths[i]));
         pathItem.filled = true;
         pathItem.stroked = false;
         pathItem.fillColor = new RGBColor(); // Black fill
@@ -277,7 +277,7 @@ function createMasuriTabPaths(layer) {
 
     // Path 1: Yellow background shape
     var bgPath = layer.pathItems.add();
-    bgPath.setEntirePath(parseSVGPath("M26.21,70.87l-6.02-10.42v-1.72l6.02-10.42-6.02-10.42h-12.04l-6.02,10.42,6.02,10.42v1.72l-6.02,10.42,6.02,10.42v1.72l-6.02,10.42,6.02,10.42h12.04l6.02-10.42-6.02-10.42v-1.72l6.02-10.42Z"));
+    applyPathPoints(bgPath, parseSVGPath("M26.21,70.87l-6.02-10.42v-1.72l6.02-10.42-6.02-10.42h-12.04l-6.02,10.42,6.02,10.42v1.72l-6.02,10.42,6.02,10.42v1.72l-6.02,10.42,6.02,10.42h12.04l6.02-10.42-6.02-10.42v-1.72l6.02-10.42Z"));
     bgPath.filled = true;
     bgPath.stroked = false;
     var yellowColor = new RGBColor();
@@ -288,25 +288,56 @@ function createMasuriTabPaths(layer) {
 
     // Path 2: Black text/logo shape
     var textPath = layer.pathItems.add();
-    textPath.setEntirePath(parseSVGPath("M11.19,42.18h5.93v4.07l-4.29,1.87,4.29,1.88v4.05h-5.93v-2.44l4.71-.06-4.73-2.28v-2.28l4.7-2.29-4.68-.04v-2.47h0ZM15.63,60.13l-2.14-1.55v3.22s2.14-1.67,2.14-1.67ZM11.24,54.56l5.86,4.49v2.78l-4.62,3.32-.03.02c-.05.34-.39,4.32-.42,4.31-.06.64-.22,3.21,1.02,2.69.31-.23.46-1.36.46-1.36l.42-2.08c.46-2,1.14-2.11,1.18-2.13.77-.2,1.06.17,1.36.72.77,1.42.68,3.3.7,4.86.02,1.19-.21,2.61-.21,2.61h-.93c.15-1.03.21-3.59.21-3.57.02-1.28-.35-1.71-.36-1.71-.32-.31-.61.17-.63.18-.16.36-.43,1.79-.41,1.77-.32,2.3-.65,2.87-.63,2.85-.66,1.48-1.45,1.15-1.49,1.16-.52-.03-.92-.7-1.2-1.45s-.4-2.78-.40-2.78l.02-2.92.07-2.34v-2.57l1.38-.96v-4.48l-1.37-.96v-2.44h.02,0ZM17.16,76.55l-3.36.02s-1.28-.1-2,1.12c0,.02-.72,1.14-.65,3.33,0,.03-.07,2.08.76,3.19.03.01.41.9,1.59,1.05.03-.01,3.67.02,3.67.02v-2.75h-2.84s-.76.07-1.13-.1c0,0-.8-.19-.8-1.55.02.01-.08-1.11.79-1.47,0,0,.33-.12,1.27-.11s2.71-.02,2.71-.02v-2.74h-.01ZM16,89.55h-1.39s-.07,1.73.3,2.44c0,0,.55.67.94-.17,0,0,.30-.53.14-2.27h.01ZM17.03,86.74h-5.82l.04,2.58,2.19.03.03.9s.1.86-.58,1.28c-.49.26-1.41.70-1.6,1-.03.03,0,3.38,0,3.38,0,0,.6-.41.8-.52.20-.10.93-.43,1.28-.77,0,0,.62-.64.67-1.31,0,0,.37,1.58.88,1.91,0,.04.64.54,1.35-.12.03,0,.67-.50.88-2.87,0-.01.23-3.92-.11-5.48h0ZM17.17,97.36v2.2h-5.93v-2.2h5.93Z"));
+    applyPathPoints(textPath, parseSVGPath("M11.19,42.18h5.93v4.07l-4.29,1.87,4.29,1.88v4.05h-5.93v-2.44l4.71-.06-4.73-2.28v-2.28l4.7-2.29-4.68-.04v-2.47h0ZM15.63,60.13l-2.14-1.55v3.22s2.14-1.67,2.14-1.67ZM11.24,54.56l5.86,4.49v2.78l-4.62,3.32-.03.02c-.05.34-.39,4.32-.42,4.31-.06.64-.22,3.21,1.02,2.69.31-.23.46-1.36.46-1.36l.42-2.08c.46-2,1.14-2.11,1.18-2.13.77-.2,1.06.17,1.36.72.77,1.42.68,3.3.7,4.86.02,1.19-.21,2.61-.21,2.61h-.93c.15-1.03.21-3.59.21-3.57.02-1.28-.35-1.71-.36-1.71-.32-.31-.61.17-.63.18-.16.36-.43,1.79-.41,1.77-.32,2.3-.65,2.87-.63,2.85-.66,1.48-1.45,1.15-1.49,1.16-.52-.03-.92-.7-1.2-1.45s-.4-2.78-.40-2.78l.02-2.92.07-2.34v-2.57l1.38-.96v-4.48l-1.37-.96v-2.44h.02,0ZM17.16,76.55l-3.36.02s-1.28-.1-2,1.12c0,.02-.72,1.14-.65,3.33,0,.03-.07,2.08.76,3.19.03.01.41.9,1.59,1.05.03-.01,3.67.02,3.67.02v-2.75h-2.84s-.76.07-1.13-.1c0,0-.8-.19-.8-1.55.02.01-.08-1.11.79-1.47,0,0,.33-.12,1.27-.11s2.71-.02,2.71-.02v-2.74h-.01ZM16,89.55h-1.39s-.07,1.73.3,2.44c0,0,.55.67.94-.17,0,0,.30-.53.14-2.27h.01ZM17.03,86.74h-5.82l.04,2.58,2.19.03.03.9s.1.86-.58,1.28c-.49.26-1.41.70-1.6,1-.03.03,0,3.38,0,3.38,0,0,.6-.41.8-.52.20-.10.93-.43,1.28-.77,0,0,.62-.64.67-1.31,0,0,.37,1.58.88,1.91,0,.04.64.54,1.35-.12.03,0,.67-.50.88-2.87,0-.01.23-3.92-.11-5.48h0ZM17.17,97.36v2.2h-5.93v-2.2h5.93Z"));
     textPath.filled = true;
     textPath.stroked = false;
     textPath.fillColor = new RGBColor(); // Black fill
 }
 
 /**
- * Parse SVG path data and convert to Illustrator path points
- * This is a simplified parser for the specific path format in our SVGs
+ * Apply path points with bezier handles to an Illustrator pathItem
+ */
+function applyPathPoints(pathItem, pathPoints) {
+    if (!pathPoints || pathPoints.length === 0) {
+        return;
+    }
+
+    // Set the entire path using setEntirePath first to create the points
+    var simplePath = [];
+    for (var i = 0; i < pathPoints.length; i++) {
+        simplePath.push(pathPoints[i].anchor);
+    }
+    pathItem.setEntirePath(simplePath);
+
+    // Now set the bezier handles for each point
+    for (var i = 0; i < pathPoints.length; i++) {
+        if (i < pathItem.pathPoints.length) {
+            var point = pathItem.pathPoints[i];
+            point.anchor = pathPoints[i].anchor;
+            point.leftDirection = pathPoints[i].leftDir;
+            point.rightDirection = pathPoints[i].rightDir;
+        }
+    }
+
+    // Close the path
+    pathItem.closed = true;
+}
+
+/**
+ * Parse SVG path data and create Illustrator path with bezier curves
+ * Properly handles all SVG path commands and bezier control points
  */
 function parseSVGPath(pathData) {
-    var points = [];
+    var pathPoints = [];
     var commands = pathData.match(/[MmLlHhVvCcSsQqTtAaZz][^MmLlHhVvCcSsQqTtAaZz]*/g);
     var currentX = 0, currentY = 0;
     var startX = 0, startY = 0;
+    var lastControlX = 0, lastControlY = 0;
+    var lastCmd = '';
 
     // Check if regex matched anything
     if (!commands) {
-        return points;
+        return pathPoints;
     }
 
     for (var i = 0; i < commands.length; i++) {
@@ -321,60 +352,224 @@ function parseSVGPath(pathData) {
         // Manually trim whitespace (ExtendScript compatibility)
         coords = coords.replace(/^\s+|\s+$/g, '');
 
-        if (coords.length > 0) {
+        if (coords.length > 0 || cmd === 'Z' || cmd === 'z') {
             var nums = coords.match(/-?[\d.]+/g);
-            if (!nums) continue;
+            if (!nums && cmd !== 'Z' && cmd !== 'z') continue;
 
-            for (var j = 0; j < nums.length; j++) {
-                nums[j] = parseFloat(nums[j]);
+            // Convert string numbers to floats
+            if (nums) {
+                for (var j = 0; j < nums.length; j++) {
+                    nums[j] = parseFloat(nums[j]);
+                }
             }
 
-            switch (cmd) {
-                case 'M': // Move to (absolute)
-                    currentX = nums[0];
-                    currentY = nums[1];
-                    startX = currentX;
-                    startY = currentY;
-                    points.push([currentX, currentY]);
-                    break;
+            var k = 0;
+            do {
+                switch (cmd) {
+                    case 'M': // Move to (absolute)
+                        currentX = nums[k];
+                        currentY = nums[k + 1];
+                        startX = currentX;
+                        startY = currentY;
+                        pathPoints.push({
+                            anchor: [currentX, currentY],
+                            leftDir: [currentX, currentY],
+                            rightDir: [currentX, currentY]
+                        });
+                        k += 2;
+                        break;
 
-                case 'l': // Line to (relative)
-                    currentX += nums[0];
-                    currentY += nums[1];
-                    points.push([currentX, currentY]);
-                    break;
+                    case 'm': // Move to (relative)
+                        currentX += nums[k];
+                        currentY += nums[k + 1];
+                        startX = currentX;
+                        startY = currentY;
+                        pathPoints.push({
+                            anchor: [currentX, currentY],
+                            leftDir: [currentX, currentY],
+                            rightDir: [currentX, currentY]
+                        });
+                        k += 2;
+                        break;
 
-                case 'h': // Horizontal line (relative)
-                    currentX += nums[0];
-                    points.push([currentX, currentY]);
-                    break;
+                    case 'L': // Line to (absolute)
+                        currentX = nums[k];
+                        currentY = nums[k + 1];
+                        pathPoints.push({
+                            anchor: [currentX, currentY],
+                            leftDir: [currentX, currentY],
+                            rightDir: [currentX, currentY]
+                        });
+                        k += 2;
+                        break;
 
-                case 'v': // Vertical line (relative)
-                    currentY += nums[0];
-                    points.push([currentX, currentY]);
-                    break;
+                    case 'l': // Line to (relative)
+                        currentX += nums[k];
+                        currentY += nums[k + 1];
+                        pathPoints.push({
+                            anchor: [currentX, currentY],
+                            leftDir: [currentX, currentY],
+                            rightDir: [currentX, currentY]
+                        });
+                        k += 2;
+                        break;
 
-                case 's': // Smooth curve (relative) - simplified as line
-                    currentX += nums[nums.length - 2];
-                    currentY += nums[nums.length - 1];
-                    points.push([currentX, currentY]);
-                    break;
+                    case 'H': // Horizontal line (absolute)
+                        currentX = nums[k];
+                        pathPoints.push({
+                            anchor: [currentX, currentY],
+                            leftDir: [currentX, currentY],
+                            rightDir: [currentX, currentY]
+                        });
+                        k += 1;
+                        break;
 
-                case 'c': // Cubic bezier (relative) - simplified as line to end point
-                    currentX += nums[nums.length - 2];
-                    currentY += nums[nums.length - 1];
-                    points.push([currentX, currentY]);
-                    break;
+                    case 'h': // Horizontal line (relative)
+                        currentX += nums[k];
+                        pathPoints.push({
+                            anchor: [currentX, currentY],
+                            leftDir: [currentX, currentY],
+                            rightDir: [currentX, currentY]
+                        });
+                        k += 1;
+                        break;
 
-                case 'Z': // Close path
-                case 'z':
-                    if (points.length > 0 && (points[points.length-1][0] != startX || points[points.length-1][1] != startY)) {
-                        points.push([startX, startY]);
-                    }
-                    break;
-            }
+                    case 'V': // Vertical line (absolute)
+                        currentY = nums[k];
+                        pathPoints.push({
+                            anchor: [currentX, currentY],
+                            leftDir: [currentX, currentY],
+                            rightDir: [currentX, currentY]
+                        });
+                        k += 1;
+                        break;
+
+                    case 'v': // Vertical line (relative)
+                        currentY += nums[k];
+                        pathPoints.push({
+                            anchor: [currentX, currentY],
+                            leftDir: [currentX, currentY],
+                            rightDir: [currentX, currentY]
+                        });
+                        k += 1;
+                        break;
+
+                    case 'C': // Cubic bezier (absolute)
+                        var cp1x = nums[k];
+                        var cp1y = nums[k + 1];
+                        var cp2x = nums[k + 2];
+                        var cp2y = nums[k + 3];
+                        var endX = nums[k + 4];
+                        var endY = nums[k + 5];
+
+                        // Set right direction of previous point
+                        if (pathPoints.length > 0) {
+                            pathPoints[pathPoints.length - 1].rightDir = [cp1x, cp1y];
+                        }
+
+                        // Add new point with left direction
+                        pathPoints.push({
+                            anchor: [endX, endY],
+                            leftDir: [cp2x, cp2y],
+                            rightDir: [endX, endY]
+                        });
+
+                        lastControlX = cp2x;
+                        lastControlY = cp2y;
+                        currentX = endX;
+                        currentY = endY;
+                        k += 6;
+                        break;
+
+                    case 'c': // Cubic bezier (relative)
+                        var cp1x = currentX + nums[k];
+                        var cp1y = currentY + nums[k + 1];
+                        var cp2x = currentX + nums[k + 2];
+                        var cp2y = currentY + nums[k + 3];
+                        currentX += nums[k + 4];
+                        currentY += nums[k + 5];
+
+                        // Set right direction of previous point
+                        if (pathPoints.length > 0) {
+                            pathPoints[pathPoints.length - 1].rightDir = [cp1x, cp1y];
+                        }
+
+                        // Add new point with left direction
+                        pathPoints.push({
+                            anchor: [currentX, currentY],
+                            leftDir: [cp2x, cp2y],
+                            rightDir: [currentX, currentY]
+                        });
+
+                        lastControlX = cp2x;
+                        lastControlY = cp2y;
+                        k += 6;
+                        break;
+
+                    case 'S': // Smooth cubic bezier (absolute)
+                        // Reflect last control point
+                        var cp1x = currentX + (currentX - lastControlX);
+                        var cp1y = currentY + (currentY - lastControlY);
+                        var cp2x = nums[k];
+                        var cp2y = nums[k + 1];
+                        var endX = nums[k + 2];
+                        var endY = nums[k + 3];
+
+                        // Set right direction of previous point
+                        if (pathPoints.length > 0) {
+                            pathPoints[pathPoints.length - 1].rightDir = [cp1x, cp1y];
+                        }
+
+                        // Add new point with left direction
+                        pathPoints.push({
+                            anchor: [endX, endY],
+                            leftDir: [cp2x, cp2y],
+                            rightDir: [endX, endY]
+                        });
+
+                        lastControlX = cp2x;
+                        lastControlY = cp2y;
+                        currentX = endX;
+                        currentY = endY;
+                        k += 4;
+                        break;
+
+                    case 's': // Smooth cubic bezier (relative)
+                        // Reflect last control point
+                        var cp1x = currentX + (currentX - lastControlX);
+                        var cp1y = currentY + (currentY - lastControlY);
+                        var cp2x = currentX + nums[k];
+                        var cp2y = currentY + nums[k + 1];
+                        currentX += nums[k + 2];
+                        currentY += nums[k + 3];
+
+                        // Set right direction of previous point
+                        if (pathPoints.length > 0) {
+                            pathPoints[pathPoints.length - 1].rightDir = [cp1x, cp1y];
+                        }
+
+                        // Add new point with left direction
+                        pathPoints.push({
+                            anchor: [currentX, currentY],
+                            leftDir: [cp2x, cp2y],
+                            rightDir: [currentX, currentY]
+                        });
+
+                        lastControlX = cp2x;
+                        lastControlY = cp2y;
+                        k += 4;
+                        break;
+
+                    case 'Z': // Close path
+                    case 'z':
+                        // Path will auto-close in Illustrator
+                        break;
+                }
+
+                lastCmd = cmd;
+            } while (nums && k < nums.length);
         }
     }
 
-    return points;
+    return pathPoints;
 }
