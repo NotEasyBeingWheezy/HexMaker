@@ -132,6 +132,9 @@ function main() {
         // Masuri Tab: X = 5.7281cm, Y = 6.8792cm (from top-left reference point)
         positionLayerGroup(masuriTabLayer, 5.7281, 6.8792);
 
+        // Remove any empty layers
+        removeEmptyLayers(newDoc);
+
         // Deselect all
         newDoc.selection = null;
 
@@ -536,5 +539,25 @@ function positionSponsorLayer(sponsorLayer, hexLayer, positionType) {
 
     } catch (e) {
         throw new Error("Failed to position sponsor layer: " + e.message);
+    }
+}
+
+/**
+ * Remove all empty layers from the document
+ */
+function removeEmptyLayers(doc) {
+    try {
+        // Iterate backwards to avoid index shifting issues when removing layers
+        for (var i = doc.layers.length - 1; i >= 0; i--) {
+            var layer = doc.layers[i];
+
+            // Check if layer is empty (no page items)
+            if (layer.pageItems.length === 0) {
+                layer.remove();
+            }
+        }
+    } catch (e) {
+        // Don't throw error for layer removal - just continue
+        // This prevents script failure if layer can't be removed
     }
 }
