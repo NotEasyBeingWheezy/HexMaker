@@ -319,8 +319,8 @@ function applyPathPoints(pathItem, pathPoints) {
         }
     }
 
-    // Close the path
-    pathItem.closed = true;
+    // Don't force close - let Z commands handle subpath closing
+    pathItem.closed = false;
 }
 
 /**
