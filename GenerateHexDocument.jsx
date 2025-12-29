@@ -17,6 +17,12 @@ if (app.documents.length === 0) {
 
 function main() {
     try {
+        // Show color selection dialog
+        var hexColor = showColorDialog();
+        if (!hexColor) {
+            return; // User cancelled
+        }
+
         // Get the source document (currently active)
         var sourceDoc = app.activeDocument;
 
@@ -98,6 +104,9 @@ function main() {
         newDoc.activeLayer = hexLayer;
         hexLayer.locked = false;
         importSVGByOpening(hexSVGFile, newDoc, hexLayer);
+
+        // Apply selected color to hex layer
+        applyColorToLayer(hexLayer, hexColor);
 
         // Import MASURI TAB.svg into Masuri Tab layer
         newDoc.activate();
@@ -269,5 +278,99 @@ function scaleToFit(selection, targetWidthCm, targetHeightCm) {
 
     } catch (e) {
         throw new Error("Failed to scale selection: " + e.message);
+    }
+}
+
+/**
+ * Show dialog to select hex color
+ * Returns RGB color object or null if cancelled
+ */
+function showColorDialog() {
+    // Create dialog window
+    var dialog = new Window("dialog", "Select Hex Color");
+    dialog.orientation = "column";
+    dialog.alignChildren = ["fill", "top"];
+
+    // Add dropdown group
+    var dropdownGroup = dialog.add("group");
+    dropdownGroup.orientation = "row";
+    dropdownGroup.add("statictext", undefined, "Hex Color:");
+
+    var colorDropdown = dropdownGroup.add("dropdownlist", undefined, ["Black", "White", "Navy", "Yellow"]);
+    colorDropdown.selection = 0; // Default to Black
+    colorDropdown.preferredSize.width = 150;
+
+    // Add buttons
+    var buttonGroup = dialog.add("group");
+    buttonGroup.orientation = "row";
+    buttonGroup.alignment = "center";
+
+    var okButton = buttonGroup.add("button", undefined, "OK", {name: "ok"});
+    var cancelButton = buttonGroup.add("button", undefined, "Cancel", {name: "cancel"});
+
+    // Show dialog and get result
+    if (dialog.show() == 1) {
+        // User clicked OK
+        var selectedColor = colorDropdown.selection.text;
+
+        // Return RGB color based on selection
+        var rgbColor = new RGBColor();
+
+        if (selectedColor == "Black") {
+            rgbColor.red = 0;
+            rgbColor.green = 0;
+            rgbColor.blue = 0;
+        } else if (selectedColor == "White") {
+            rgbColor.red = 255;
+            rgbColor.green = 255;
+            rgbColor.blue = 255;
+        } else if (selectedColor == "Navy") {
+            rgbColor.red = 0;
+            rgbColor.green = 0;
+            rgbColor.blue = 128;
+        } else if (selectedColor == "Yellow") {
+            rgbColor.red = 255;
+            rgbColor.green = 255;
+            rgbColor.blue = 0;
+        }
+
+        return rgbColor;
+    } else {
+        // User cancelled
+        return null;
+    }
+}
+
+/**
+ * Apply color to all paths in a layer
+ */
+function applyColorToLayer(layer, rgbColor) {
+    try {
+        // Recursively apply color to all path items
+        function applyColorToItems(items) {
+            for (var i = 0; i < items.length; i++) {
+                var item = items[i];
+
+                // If it's a path item, apply the color
+                if (item.typename == "PathItem") {
+                    item.filled = true;
+                    item.fillColor = rgbColor;
+                    item.stroked = true;
+                    item.strokeColor = rgbColor;
+                }
+                // If it's a group or compound path, recurse into it
+                else if (item.typename == "GroupItem") {
+                    applyColorToItems(item.pageItems);
+                }
+                else if (item.typename == "CompoundPathItem") {
+                    applyColorToItems(item.pathItems);
+                }
+            }
+        }
+
+        applyColorToItems(layer.pageItems);
+
+    } catch (e) {
+        throw new Error("Failed to apply color to layer: " + e.message);
     }
 }
