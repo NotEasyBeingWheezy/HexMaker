@@ -128,9 +128,14 @@ function main() {
         groupLayerContents(hexLayer);
         groupLayerContents(masuriTabLayer);
 
-        // Position layers
-        // Hex: X = 4.3313cm, Y = 2.4895cm (from top-left reference point)
-        positionLayerGroup(hexLayer, 4.3313, 2.4895);
+        // Position layers based on sponsor position mode
+        if (sponsorPosition == "Normal Hex Sponsor") {
+            // Hex position for Normal mode
+            positionLayerGroup(hexLayer, 4.3313, 2.4895);
+        } else if (sponsorPosition == "Sweater Hex Sponsor") {
+            // Hex position for Sweater mode
+            positionLayerGroup(hexLayer, 4.3313, 2.4895); // TODO: Update with Sweater coordinates
+        }
 
         // Masuri Tab: X = 5.7281cm, Y = 6.8792cm (from top-left reference point)
         positionLayerGroup(masuriTabLayer, 5.7281, 6.8792);
