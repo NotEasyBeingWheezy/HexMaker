@@ -51,8 +51,8 @@ function main() {
 
         // Set artboard position to 0,0
         // artboardRect format: [left, top, right, bottom]
-        // Setting bottom-left corner to 0,0
-        newDoc.artboards[0].artboardRect = [0, docHeight, docWidth, 0];
+        // Setting top-left corner to 0,0 (artboard extends downward)
+        newDoc.artboards[0].artboardRect = [0, 0, docWidth, -docHeight];
 
         // Set ruler origin to match artboard origin (0,0)
         newDoc.rulerOrigin = [0, 0];
