@@ -261,11 +261,7 @@ function createHexPaths(layer) {
 
     // Create each path
     for (var i = 0; i < hexPaths.length; i++) {
-        var pathItem = layer.pathItems.add();
-        applyPathPoints(pathItem, parseSVGPath(hexPaths[i]));
-        pathItem.filled = true;
-        pathItem.stroked = false;
-        pathItem.fillColor = new RGBColor(); // Black fill
+        createSVGPath(layer, hexPaths[i], new RGBColor(), true, false);
     }
 }
 
@@ -275,23 +271,45 @@ function createHexPaths(layer) {
 function createMasuriTabPaths(layer) {
     var doc = app.activeDocument;
 
-    // Path 1: Yellow background shape
-    var bgPath = layer.pathItems.add();
-    applyPathPoints(bgPath, parseSVGPath("M26.21,70.87l-6.02-10.42v-1.72l6.02-10.42-6.02-10.42h-12.04l-6.02,10.42,6.02,10.42v1.72l-6.02,10.42,6.02,10.42v1.72l-6.02,10.42,6.02,10.42h12.04l6.02-10.42-6.02-10.42v-1.72l6.02-10.42Z"));
-    bgPath.filled = true;
-    bgPath.stroked = false;
+    // Yellow background shape
     var yellowColor = new RGBColor();
     yellowColor.red = 251;
     yellowColor.green = 186;
     yellowColor.blue = 5;
-    bgPath.fillColor = yellowColor;
+    createSVGPath(layer, "M26.21,70.87l-6.02-10.42v-1.72l6.02-10.42-6.02-10.42h-12.04l-6.02,10.42,6.02,10.42v1.72l-6.02,10.42,6.02,10.42v1.72l-6.02,10.42,6.02,10.42h12.04l6.02-10.42-6.02-10.42v-1.72l6.02-10.42Z", yellowColor, true, false);
 
-    // Path 2: Black text/logo shape
-    var textPath = layer.pathItems.add();
-    applyPathPoints(textPath, parseSVGPath("M11.19,42.18h5.93v4.07l-4.29,1.87,4.29,1.88v4.05h-5.93v-2.44l4.71-.06-4.73-2.28v-2.28l4.7-2.29-4.68-.04v-2.47h0ZM15.63,60.13l-2.14-1.55v3.22s2.14-1.67,2.14-1.67ZM11.24,54.56l5.86,4.49v2.78l-4.62,3.32-.03.02c-.05.34-.39,4.32-.42,4.31-.06.64-.22,3.21,1.02,2.69.31-.23.46-1.36.46-1.36l.42-2.08c.46-2,1.14-2.11,1.18-2.13.77-.2,1.06.17,1.36.72.77,1.42.68,3.3.7,4.86.02,1.19-.21,2.61-.21,2.61h-.93c.15-1.03.21-3.59.21-3.57.02-1.28-.35-1.71-.36-1.71-.32-.31-.61.17-.63.18-.16.36-.43,1.79-.41,1.77-.32,2.3-.65,2.87-.63,2.85-.66,1.48-1.45,1.15-1.49,1.16-.52-.03-.92-.7-1.2-1.45s-.4-2.78-.40-2.78l.02-2.92.07-2.34v-2.57l1.38-.96v-4.48l-1.37-.96v-2.44h.02,0ZM17.16,76.55l-3.36.02s-1.28-.1-2,1.12c0,.02-.72,1.14-.65,3.33,0,.03-.07,2.08.76,3.19.03.01.41.9,1.59,1.05.03-.01,3.67.02,3.67.02v-2.75h-2.84s-.76.07-1.13-.1c0,0-.8-.19-.8-1.55.02.01-.08-1.11.79-1.47,0,0,.33-.12,1.27-.11s2.71-.02,2.71-.02v-2.74h-.01ZM16,89.55h-1.39s-.07,1.73.3,2.44c0,0,.55.67.94-.17,0,0,.30-.53.14-2.27h.01ZM17.03,86.74h-5.82l.04,2.58,2.19.03.03.9s.1.86-.58,1.28c-.49.26-1.41.70-1.6,1-.03.03,0,3.38,0,3.38,0,0,.6-.41.8-.52.20-.10.93-.43,1.28-.77,0,0,.62-.64.67-1.31,0,0,.37,1.58.88,1.91,0,.04.64.54,1.35-.12.03,0,.67-.50.88-2.87,0-.01.23-3.92-.11-5.48h0ZM17.17,97.36v2.2h-5.93v-2.2h5.93Z"));
-    textPath.filled = true;
-    textPath.stroked = false;
-    textPath.fillColor = new RGBColor(); // Black fill
+    // Black text/logo shape
+    createSVGPath(layer, "M11.19,42.18h5.93v4.07l-4.29,1.87,4.29,1.88v4.05h-5.93v-2.44l4.71-.06-4.73-2.28v-2.28l4.7-2.29-4.68-.04v-2.47h0ZM15.63,60.13l-2.14-1.55v3.22s2.14-1.67,2.14-1.67ZM11.24,54.56l5.86,4.49v2.78l-4.62,3.32-.03.02c-.05.34-.39,4.32-.42,4.31-.06.64-.22,3.21,1.02,2.69.31-.23.46-1.36.46-1.36l.42-2.08c.46-2,1.14-2.11,1.18-2.13.77-.2,1.06.17,1.36.72.77,1.42.68,3.3.7,4.86.02,1.19-.21,2.61-.21,2.61h-.93c.15-1.03.21-3.59.21-3.57.02-1.28-.35-1.71-.36-1.71-.32-.31-.61.17-.63.18-.16.36-.43,1.79-.41,1.77-.32,2.3-.65,2.87-.63,2.85-.66,1.48-1.45,1.15-1.49,1.16-.52-.03-.92-.7-1.2-1.45s-.4-2.78-.40-2.78l.02-2.92.07-2.34v-2.57l1.38-.96v-4.48l-1.37-.96v-2.44h.02,0ZM17.16,76.55l-3.36.02s-1.28-.1-2,1.12c0,.02-.72,1.14-.65,3.33,0,.03-.07,2.08.76,3.19.03.01.41.9,1.59,1.05.03-.01,3.67.02,3.67.02v-2.75h-2.84s-.76.07-1.13-.1c0,0-.8-.19-.8-1.55.02.01-.08-1.11.79-1.47,0,0,.33-.12,1.27-.11s2.71-.02,2.71-.02v-2.74h-.01ZM16,89.55h-1.39s-.07,1.73.3,2.44c0,0,.55.67.94-.17,0,0,.30-.53.14-2.27h.01ZM17.03,86.74h-5.82l.04,2.58,2.19.03.03.9s.1.86-.58,1.28c-.49.26-1.41.70-1.6,1-.03.03,0,3.38,0,3.38,0,0,.6-.41.8-.52.20-.10.93-.43,1.28-.77,0,0,.62-.64.67-1.31,0,0,.37,1.58.88,1.91,0,.04.64.54,1.35-.12.03,0,.67-.50.88-2.87,0-.01.23-3.92-.11-5.48h0ZM17.17,97.36v2.2h-5.93v-2.2h5.93Z", new RGBColor(), true, false);
+}
+
+/**
+ * Create SVG path by splitting into separate pathItems for each M command
+ * This prevents unwanted connections between separate subpaths
+ */
+function createSVGPath(layer, pathData, fillColor, filled, stroked) {
+    // Split path data by M commands (case-insensitive) to create separate paths
+    // Keep the M with each segment
+    var segments = pathData.split(/(?=[Mm])/);
+
+    for (var i = 0; i < segments.length; i++) {
+        var segment = segments[i];
+
+        // Skip empty segments
+        if (!segment || segment.replace(/\s/g, '') === '') {
+            continue;
+        }
+
+        // Parse this segment
+        var pathPoints = parseSVGPath(segment);
+
+        if (pathPoints.length > 0) {
+            var pathItem = layer.pathItems.add();
+            applyPathPoints(pathItem, pathPoints);
+            pathItem.filled = filled;
+            pathItem.stroked = stroked;
+            pathItem.fillColor = fillColor;
+        }
+    }
 }
 
 /**
@@ -319,8 +337,8 @@ function applyPathPoints(pathItem, pathPoints) {
         }
     }
 
-    // Don't force close - let Z commands handle subpath closing
-    pathItem.closed = false;
+    // Close the path (safe now since each pathItem has only one subpath)
+    pathItem.closed = true;
 }
 
 /**
