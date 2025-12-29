@@ -49,13 +49,13 @@ function main() {
             docHeight
         );
 
-        // Set artboard position to 0,0
-        // artboardRect format: [left, top, right, bottom]
-        // Setting top-left corner to 0,0 (artboard extends downward)
-        newDoc.artboards[0].artboardRect = [0, 0, docWidth, -docHeight];
+        // Set ruler origin so that the top-left corner of the artboard is at 0,0
+        // Get the artboard bounds
+        var artboard = newDoc.artboards[0];
+        var artboardRect = artboard.artboardRect; // [left, top, right, bottom]
 
-        // Set ruler origin to match artboard origin (0,0)
-        newDoc.rulerOrigin = [0, 0];
+        // Set ruler origin to the top-left corner of the artboard
+        newDoc.rulerOrigin = [artboardRect[0], artboardRect[1]];
 
         // Remove the default layer
         if (newDoc.layers.length > 0) {
