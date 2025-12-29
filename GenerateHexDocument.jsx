@@ -133,12 +133,12 @@ function main() {
             // Hex position for Normal mode
             positionLayerGroup(hexLayer, 4.3313, 2.4895);
             // Masuri Tab position for Normal mode
-            positionLayerGroup(masuriTabLayer, 5.7281, 6.8792);
+            positionLayerGroup(masuriTabLayer, 5.7135, 18.8111);
         } else if (sponsorPosition == "Sweater Hex Sponsor") {
             // Hex position for Sweater mode
             positionLayerGroup(hexLayer, 4.3313, 2.4895); // TODO: Update with Sweater coordinates
             // Masuri Tab position for Sweater mode
-            positionLayerGroup(masuriTabLayer, 5.7281, 6.8792); // TODO: Update with Sweater coordinates
+            positionLayerGroup(masuriTabLayer, 5.7135, 8.4606); // TODO: Update with Sweater coordinates
         }
 
         // Remove any empty layers
