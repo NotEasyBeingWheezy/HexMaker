@@ -108,6 +108,9 @@ function main() {
         // Apply selected color to hex layer
         applyColorToLayer(hexLayer, hexColor);
 
+        // Remove hex paths that overlap with sponsor content
+        removeOverlappingHexPaths(hexLayer, sponsorLayer);
+
         // Import MASURI TAB.svg into Masuri Tab layer
         newDoc.activate();
         newDoc.activeLayer = masuriTabLayer;
@@ -372,4 +375,94 @@ function applyColorToLayer(layer, rgbColor) {
     } catch (e) {
         throw new Error("Failed to apply color to layer: " + e.message);
     }
+}
+
+/**
+ * Remove hex paths that overlap with sponsor layer content
+ */
+function removeOverlappingHexPaths(hexLayer, sponsorLayer) {
+    try {
+        // Get bounding box of all sponsor content
+        var sponsorBounds = getLayerBounds(sponsorLayer);
+
+        if (!sponsorBounds) {
+            return; // No sponsor content, nothing to remove
+        }
+
+        // Collect all path items from hex layer (including nested in groups)
+        var hexPaths = [];
+        collectPathItems(hexLayer.pageItems, hexPaths);
+
+        // Check each hex path for overlap and mark for deletion
+        var pathsToDelete = [];
+        for (var i = 0; i < hexPaths.length; i++) {
+            var pathBounds = hexPaths[i].geometricBounds;
+
+            // Check if bounding boxes intersect
+            if (boundsIntersect(pathBounds, sponsorBounds)) {
+                pathsToDelete.push(hexPaths[i]);
+            }
+        }
+
+        // Delete overlapping paths
+        for (var i = 0; i < pathsToDelete.length; i++) {
+            pathsToDelete[i].remove();
+        }
+
+    } catch (e) {
+        throw new Error("Failed to remove overlapping hex paths: " + e.message);
+    }
+}
+
+/**
+ * Get the overall bounding box of all items in a layer
+ */
+function getLayerBounds(layer) {
+    var items = layer.pageItems;
+    if (items.length === 0) {
+        return null;
+    }
+
+    var bounds = items[0].geometricBounds;
+    for (var i = 1; i < items.length; i++) {
+        var itemBounds = items[i].geometricBounds;
+        bounds[0] = Math.min(bounds[0], itemBounds[0]); // left
+        bounds[1] = Math.max(bounds[1], itemBounds[1]); // top
+        bounds[2] = Math.max(bounds[2], itemBounds[2]); // right
+        bounds[3] = Math.min(bounds[3], itemBounds[3]); // bottom
+    }
+
+    return bounds;
+}
+
+/**
+ * Recursively collect all path items from a collection
+ */
+function collectPathItems(items, pathArray) {
+    for (var i = 0; i < items.length; i++) {
+        var item = items[i];
+
+        if (item.typename == "PathItem") {
+            pathArray.push(item);
+        } else if (item.typename == "GroupItem") {
+            collectPathItems(item.pageItems, pathArray);
+        } else if (item.typename == "CompoundPathItem") {
+            collectPathItems(item.pathItems, pathArray);
+        }
+    }
+}
+
+/**
+ * Check if two bounding boxes intersect
+ * Bounds format: [left, top, right, bottom]
+ */
+function boundsIntersect(bounds1, bounds2) {
+    // Two rectangles intersect if:
+    // - left1 < right2 AND right1 > left2 (horizontal overlap)
+    // - bottom1 < top2 AND top1 > bottom2 (vertical overlap)
+
+    var horizontalOverlap = bounds1[0] < bounds2[2] && bounds1[2] > bounds2[0];
+    var verticalOverlap = bounds1[3] < bounds2[1] && bounds1[1] > bounds2[3];
+
+    return horizontalOverlap && verticalOverlap;
 }
