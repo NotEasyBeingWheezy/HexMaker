@@ -17,11 +17,14 @@ if (app.documents.length === 0) {
 
 function main() {
     try {
-        // Show color selection dialog
-        var hexColor = showColorDialog();
-        if (!hexColor) {
+        // Show configuration dialog
+        var config = showConfigDialog();
+        if (!config) {
             return; // User cancelled
         }
+
+        var hexColor = config.color;
+        var sponsorPosition = config.position;
 
         // Get the source document (currently active)
         var sourceDoc = app.activeDocument;
@@ -107,6 +110,9 @@ function main() {
 
         // Apply selected color to hex layer
         applyColorToLayer(hexLayer, hexColor);
+
+        // Position sponsor relative to hex layer
+        positionSponsorLayer(sponsorLayer, hexLayer, sponsorPosition);
 
         // Remove hex paths that overlap with sponsor content
         removeOverlappingHexPaths(hexLayer, sponsorLayer);
@@ -285,23 +291,32 @@ function scaleToFit(selection, targetWidthCm, targetHeightCm) {
 }
 
 /**
- * Show dialog to select hex color
- * Returns RGB color object or null if cancelled
+ * Show configuration dialog for hex color and sponsor position
+ * Returns object with color and position, or null if cancelled
  */
-function showColorDialog() {
+function showConfigDialog() {
     // Create dialog window
-    var dialog = new Window("dialog", "Select Hex Color");
+    var dialog = new Window("dialog", "Hex Document Configuration");
     dialog.orientation = "column";
     dialog.alignChildren = ["fill", "top"];
 
-    // Add dropdown group
-    var dropdownGroup = dialog.add("group");
-    dropdownGroup.orientation = "row";
-    dropdownGroup.add("statictext", undefined, "Hex Color:");
+    // Add hex color dropdown group
+    var colorGroup = dialog.add("group");
+    colorGroup.orientation = "row";
+    colorGroup.add("statictext", undefined, "Hex Color:");
 
-    var colorDropdown = dropdownGroup.add("dropdownlist", undefined, ["Black", "White", "Navy", "Yellow"]);
+    var colorDropdown = colorGroup.add("dropdownlist", undefined, ["Black", "White", "Navy", "Yellow"]);
     colorDropdown.selection = 0; // Default to Black
-    colorDropdown.preferredSize.width = 150;
+    colorDropdown.preferredSize.width = 200;
+
+    // Add sponsor position dropdown group
+    var positionGroup = dialog.add("group");
+    positionGroup.orientation = "row";
+    positionGroup.add("statictext", undefined, "Sponsor Position:");
+
+    var positionDropdown = positionGroup.add("dropdownlist", undefined, ["Normal Hex Sponsor", "Sweater Hex Sponsor"]);
+    positionDropdown.selection = 0; // Default to Normal
+    positionDropdown.preferredSize.width = 200;
 
     // Add buttons
     var buttonGroup = dialog.add("group");
@@ -315,8 +330,9 @@ function showColorDialog() {
     if (dialog.show() == 1) {
         // User clicked OK
         var selectedColor = colorDropdown.selection.text;
+        var selectedPosition = positionDropdown.selection.text;
 
-        // Return RGB color based on selection
+        // Create RGB color based on selection
         var rgbColor = new RGBColor();
 
         if (selectedColor == "Black") {
@@ -337,7 +353,11 @@ function showColorDialog() {
             rgbColor.blue = 0;
         }
 
-        return rgbColor;
+        // Return both color and position
+        return {
+            color: rgbColor,
+            position: selectedPosition
+        };
     } else {
         // User cancelled
         return null;
@@ -465,4 +485,55 @@ function boundsIntersect(bounds1, bounds2) {
     var verticalOverlap = bounds1[3] < bounds2[1] && bounds1[1] > bounds2[3];
 
     return horizontalOverlap && verticalOverlap;
+}
+
+/**
+ * Position sponsor layer relative to hex layer
+ * @param {Layer} sponsorLayer - The sponsor layer to position
+ * @param {Layer} hexLayer - The hex layer to align with
+ * @param {String} positionType - "Normal Hex Sponsor" or "Sweater Hex Sponsor"
+ */
+function positionSponsorLayer(sponsorLayer, hexLayer, positionType) {
+    try {
+        // Get bounding boxes
+        var sponsorBounds = getLayerBounds(sponsorLayer);
+        var hexBounds = getLayerBounds(hexLayer);
+
+        if (!sponsorBounds || !hexBounds) {
+            return; // No content to position
+        }
+
+        // Calculate current dimensions and centers
+        var sponsorWidth = sponsorBounds[2] - sponsorBounds[0];
+        var sponsorHeight = sponsorBounds[1] - sponsorBounds[3];
+        var sponsorCenterX = sponsorBounds[0] + sponsorWidth / 2;
+        var sponsorCenterY = sponsorBounds[3] + sponsorHeight / 2;
+
+        var hexWidth = hexBounds[2] - hexBounds[0];
+        var hexHeight = hexBounds[1] - hexBounds[3];
+        var hexCenterX = hexBounds[0] + hexWidth / 2;
+        var hexCenterY = hexBounds[3] + hexHeight / 2;
+
+        var deltaX = 0;
+        var deltaY = 0;
+
+        if (positionType == "Normal Hex Sponsor") {
+            // Horizontally centered, bottom edges aligned
+            deltaX = hexCenterX - sponsorCenterX;
+            deltaY = hexBounds[3] - sponsorBounds[3]; // Align bottom edges
+        } else if (positionType == "Sweater Hex Sponsor") {
+            // Both horizontally and vertically centered
+            deltaX = hexCenterX - sponsorCenterX;
+            deltaY = hexCenterY - sponsorCenterY;
+        }
+
+        // Move all items in sponsor layer
+        var items = sponsorLayer.pageItems;
+        for (var i = 0; i < items.length; i++) {
+            items[i].translate(deltaX, deltaY);
+        }
+
+    } catch (e) {
+        throw new Error("Failed to position sponsor layer: " + e.message);
+    }
 }
