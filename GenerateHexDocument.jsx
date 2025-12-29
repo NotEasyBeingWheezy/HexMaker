@@ -304,9 +304,22 @@ function parseSVGPath(pathData) {
     var currentX = 0, currentY = 0;
     var startX = 0, startY = 0;
 
+    // Check if regex matched anything
+    if (!commands) {
+        return points;
+    }
+
     for (var i = 0; i < commands.length; i++) {
+        // Make sure command exists and is a string
+        if (!commands[i] || typeof commands[i] !== 'string') {
+            continue;
+        }
+
         var cmd = commands[i].charAt(0);
-        var coords = commands[i].slice(1).trim();
+        var coords = commands[i].substring(1);
+
+        // Manually trim whitespace (ExtendScript compatibility)
+        coords = coords.replace(/^\s+|\s+$/g, '');
 
         if (coords.length > 0) {
             var nums = coords.match(/-?[\d.]+/g);
