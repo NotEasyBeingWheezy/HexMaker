@@ -49,6 +49,11 @@ function main() {
             docHeight
         );
 
+        // Set artboard position to 0,0
+        // artboardRect format: [left, top, right, bottom]
+        // Setting top-left corner to 0,0
+        newDoc.artboards[0].artboardRect = [0, docHeight, docWidth, 0];
+
         // Remove the default layer
         if (newDoc.layers.length > 0) {
             newDoc.layers[0].remove();
