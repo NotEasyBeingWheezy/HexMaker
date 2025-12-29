@@ -54,16 +54,16 @@ function main() {
             newDoc.layers[0].remove();
         }
 
-        // Create layers in reverse order (bottom to top)
-        // In Illustrator, layers[0] is the topmost layer
-        var masuriTabLayer = newDoc.layers.add();
-        masuriTabLayer.name = "Masuri Tab";
+        // Create layers in order from bottom to top
+        // In Illustrator, the last layer added becomes the topmost layer
+        var sponsorLayer = newDoc.layers.add();
+        sponsorLayer.name = "Sponsor";
 
         var hexLayer = newDoc.layers.add();
         hexLayer.name = "Hex";
 
-        var sponsorLayer = newDoc.layers.add();
-        sponsorLayer.name = "Sponsor";
+        var masuriTabLayer = newDoc.layers.add();
+        masuriTabLayer.name = "Masuri Tab";
 
         // Copy all artwork from source document to Sponsor layer
         sourceDoc.activate();
