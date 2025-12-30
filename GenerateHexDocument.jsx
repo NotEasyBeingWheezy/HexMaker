@@ -90,6 +90,21 @@ function main() {
         sourceDoc.activate();
         sourceDoc.selectObjectsOnActiveArtboard();
 
+        // Filter out guides from the selection
+        if (sourceDoc.selection.length > 0) {
+            var filteredSelection = [];
+            for (var i = 0; i < sourceDoc.selection.length; i++) {
+                var item = sourceDoc.selection[i];
+                // Only include items that are not guides
+                if (!item.guides) {
+                    filteredSelection.push(item);
+                }
+            }
+
+            // Update selection to exclude guides
+            sourceDoc.selection = filteredSelection;
+        }
+
         if (sourceDoc.selection.length > 0) {
             app.copy();
 
