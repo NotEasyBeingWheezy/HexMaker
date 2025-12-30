@@ -146,9 +146,9 @@ function main() {
             positionLayerGroup(masuriTabLayer, 5.7135, 18.8111);
         } else if (sponsorPosition == "Sweater Hex Sponsor") {
             // Hex position for Sweater mode
-            positionLayerGroup(hexLayer, 4.3313, 2.4895); // TODO: Update with Sweater coordinates
+            positionLayerGroup(hexLayer, 4.3313, 2.4895);
             // Masuri Tab position for Sweater mode
-            positionLayerGroup(masuriTabLayer, 5.7135, 8.4606); // TODO: Update with Sweater coordinates
+            positionLayerGroup(masuriTabLayer, 5.7135, 8.4606);
         }
 
         // Remove any empty layers
@@ -605,10 +605,10 @@ function importGuidesFromSVG(svgFile, targetDoc, sponsorPosition) {
             // Get the pasted items (they're still selected)
             var pastedItems = targetDoc.selection;
 
-            // Position the guides 2.5cm from top-left corner (same for both modes)
-            // Convert 2.5cm to points
-            var targetX = 2.5 * 28.3464567; // 2.5cm in points
-            var targetY = -2.5 * 28.3464567; // 2.5cm downward (negative in Illustrator coords)
+            // Position the guides 0.5cm from top-left corner (same for both modes)
+            // Convert 0.5cm to points
+            var targetX = 0.5 * 28.3464567; // 0.5cm in points
+            var targetY = -0.5 * 28.3464567; // 0.5cm downward (negative in Illustrator coords)
 
             // Get bounding box of all pasted items
             if (pastedItems.length > 0) {
