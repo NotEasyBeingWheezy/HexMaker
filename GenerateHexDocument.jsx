@@ -382,7 +382,7 @@ function showConfigDialog() {
     colorGroup.orientation = "row";
     colorGroup.add("statictext", undefined, "Hex Color:");
 
-    var colorDropdown = colorGroup.add("dropdownlist", undefined, ["Black", "White", "Navy", "Yellow"]);
+    var colorDropdown = colorGroup.add("dropdownlist", undefined, ["Black", "White", "Navy", "Yellow", "Pink", "Red", "Maroon", "Green", "Lime Green", "Emerald Green", "Bottle Green", "Light Blue", "Royal Blue"]);
     colorDropdown.selection = 0; // Default to Black
     colorDropdown.preferredSize.width = 200;
 
@@ -417,10 +417,29 @@ function showConfigDialog() {
         } else if (selectedColor == "White") {
             rgbColor = hexToRGB("#FFFFFF");
         } else if (selectedColor == "Navy") {
-            rgbColor = hexToRGB("#000080");
+            rgbColor = hexToRGB("#072441");
         } else if (selectedColor == "Yellow") {
-            rgbColor = hexToRGB("#FFFF00");
+            rgbColor = hexToRGB("#FBBA00");
+        } else if (selectedColor == "Pink") {
+            rgbColor = hexToRGB("#E14498");
+        } else if (selectedColor == "Red") {
+            rgbColor = hexToRGB("#C42939");
+        } else if (selectedColor == "Maroon") {
+            rgbColor = hexToRGB("#621122");
+        } else if (selectedColor == "Green") {
+            rgbColor = hexToRGB("#6B9B38");
+        } else if (selectedColor == "Lime Green") {
+            rgbColor = hexToRGB("#70BE46");
+        } else if (selectedColor == "Emerald Green") {
+            rgbColor = hexToRGB("#00673A");
+        } else if (selectedColor == "Bottle Green") {
+            rgbColor = hexToRGB("#00523F");
+        } else if (selectedColor == "Light Blue") {
+            rgbColor = hexToRGB("#00B9ED");
+        } else if (selectedColor == "Royal Blue") {
+            rgbColor = hexToRGB("#005EA3");
         }
+
 
         // Return both color and position
         return {
