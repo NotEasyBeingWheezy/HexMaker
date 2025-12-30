@@ -52,6 +52,9 @@ function main() {
             return;
         }
 
+        // Set application ruler units preference to centimeters before creating document
+        app.preferences.setIntegerPreference("rulerUnits", 2); // 2 = Centimeters
+
         // Create new document
         // 13cm = 368.503937 points, 34cm = 963.779528 points
         var docWidth = 368.503937;
@@ -71,8 +74,9 @@ function main() {
         // Set ruler origin to the top-left corner of the artboard
         newDoc.rulerOrigin = [artboardRect[0], artboardRect[1]];
 
-        // Set document units to centimeters (after document initialization)
+        // Explicitly set document units to centimeters
         newDoc.rulerUnits = RulerUnits.Centimeters;
+        app.activeDocument.rulerUnits = RulerUnits.Centimeters;
 
         // Remove the default layer
         if (newDoc.layers.length > 0) {
