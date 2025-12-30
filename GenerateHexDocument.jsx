@@ -172,9 +172,9 @@ function main() {
         groupAndCenterLayers(newDoc, [sponsorLayer, hexLayer]);
 
         // Position Masuri Tab layer based on sponsor position mode (after centering hex+sponsor)
-        if (sponsorPosition == "Normal Hex Sponsor") {
+        if (sponsorPosition == "Bottom Sponsor") {
             positionLayerGroup(masuriTabLayer, 5.7281, 18.8218);
-        } else if (sponsorPosition == "Sweater Hex Sponsor") {
+        } else if (sponsorPosition == "Middle Sponsor") {
             positionLayerGroup(masuriTabLayer, 5.7281, 8.4713);
         }
 
@@ -391,7 +391,7 @@ function showConfigDialog() {
     positionGroup.orientation = "row";
     positionGroup.add("statictext", undefined, "Sponsor Position:");
 
-    var positionDropdown = positionGroup.add("dropdownlist", undefined, ["Normal Hex Sponsor", "Sweater Hex Sponsor"]);
+    var positionDropdown = positionGroup.add("dropdownlist", undefined, ["Bottom Sponsor", "Middle Sponsor"]);
     positionDropdown.selection = 0; // Default to Normal
     positionDropdown.preferredSize.width = 200;
 
@@ -563,7 +563,7 @@ function boundsIntersect(bounds1, bounds2) {
  * Position sponsor layer relative to hex layer
  * @param {Layer} sponsorLayer - The sponsor layer to position
  * @param {Layer} hexLayer - The hex layer to align with
- * @param {String} positionType - "Normal Hex Sponsor" or "Sweater Hex Sponsor"
+ * @param {String} positionType - "Bottom Sponsor" or "Middle Sponsor"
  */
 function positionSponsorLayer(sponsorLayer, hexLayer, positionType) {
     try {
@@ -589,11 +589,11 @@ function positionSponsorLayer(sponsorLayer, hexLayer, positionType) {
         var deltaX = 0;
         var deltaY = 0;
 
-        if (positionType == "Normal Hex Sponsor") {
+        if (positionType == "Bottom Sponsor") {
             // Horizontally centered, bottom edges aligned
             deltaX = hexCenterX - sponsorCenterX;
             deltaY = hexBounds[3] - sponsorBounds[3]; // Align bottom edges
-        } else if (positionType == "Sweater Hex Sponsor") {
+        } else if (positionType == "Middle Sponsor") {
             // Both horizontally and vertically centered
             deltaX = hexCenterX - sponsorCenterX;
             deltaY = hexCenterY - sponsorCenterY;
