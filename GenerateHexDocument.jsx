@@ -132,12 +132,6 @@ function main() {
         // Apply selected color to hex layer
         applyColorToLayer(hexLayer, hexColor);
 
-        // Position sponsor relative to hex layer
-        positionSponsorLayer(sponsorLayer, hexLayer, sponsorPosition);
-
-        // Remove hex paths that overlap with sponsor content
-        removeOverlappingHexPaths(hexLayer, sponsorLayer);
-
         // Import MASURI TAB.svg into Masuri Tab layer
         newDoc.activate();
         newDoc.activeLayer = masuriTabLayer;
@@ -168,8 +162,11 @@ function main() {
             masuriTabLayer.groupItems[0].name = "Masuri Tab";
         }
 
-        // Position hex layer (same for both modes)
-        positionLayerGroup(hexLayer, 4.3313, 2.4895);
+        // Position sponsor relative to hex layer (hex stays at natural import position)
+        positionSponsorLayer(sponsorLayer, hexLayer, sponsorPosition);
+
+        // Remove hex paths that overlap with sponsor content
+        removeOverlappingHexPaths(hexLayer, sponsorLayer);
 
         // Position Masuri Tab layer based on sponsor position mode
         if (sponsorPosition == "Normal Hex Sponsor") {
