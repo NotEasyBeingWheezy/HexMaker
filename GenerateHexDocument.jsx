@@ -355,25 +355,17 @@ function showConfigDialog() {
         var selectedColor = colorDropdown.selection.text;
         var selectedPosition = positionDropdown.selection.text;
 
-        // Create RGB color based on selection
-        var rgbColor = new RGBColor();
+        // Create RGB color based on selection using hex codes
+        var rgbColor;
 
         if (selectedColor == "Black") {
-            rgbColor.red = 0;
-            rgbColor.green = 0;
-            rgbColor.blue = 0;
+            rgbColor = hexToRGB("#000000");
         } else if (selectedColor == "White") {
-            rgbColor.red = 255;
-            rgbColor.green = 255;
-            rgbColor.blue = 255;
+            rgbColor = hexToRGB("#FFFFFF");
         } else if (selectedColor == "Navy") {
-            rgbColor.red = 0;
-            rgbColor.green = 0;
-            rgbColor.blue = 128;
+            rgbColor = hexToRGB("#000080");
         } else if (selectedColor == "Yellow") {
-            rgbColor.red = 255;
-            rgbColor.green = 255;
-            rgbColor.blue = 0;
+            rgbColor = hexToRGB("#FFFF00");
         }
 
         // Return both color and position
@@ -674,4 +666,34 @@ function convertToGuides(items) {
             convertToGuides(item.pathItems);
         }
     }
+}
+
+/**
+ * Convert hex color code to RGBColor object
+ * @param {String} hex - Hex color code (e.g., "#FFFFFF" or "#FFF")
+ * @return {RGBColor} - Illustrator RGBColor object
+ */
+function hexToRGB(hex) {
+    // Remove # if present
+    hex = hex.replace("#", "");
+
+    // Handle shorthand hex (e.g., #FFF -> #FFFFFF)
+    if (hex.length === 3) {
+        hex = hex.charAt(0) + hex.charAt(0) +
+              hex.charAt(1) + hex.charAt(1) +
+              hex.charAt(2) + hex.charAt(2);
+    }
+
+    // Parse hex values
+    var r = parseInt(hex.substring(0, 2), 16);
+    var g = parseInt(hex.substring(2, 4), 16);
+    var b = parseInt(hex.substring(4, 6), 16);
+
+    // Create and return RGBColor
+    var rgbColor = new RGBColor();
+    rgbColor.red = r;
+    rgbColor.green = g;
+    rgbColor.blue = b;
+
+    return rgbColor;
 }
