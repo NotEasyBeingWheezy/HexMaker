@@ -15,6 +15,15 @@ if (app.documents.length === 0) {
     main();
 }
 
+/**
+ * Orchestrates creation of a 13cm × 34cm CMYK Illustrator document assembled from source artwork and SVG templates.
+ *
+ * Creates layers (Sponsor, Hex, Masuri Tab), imports artwork from the active document and the SVG files
+ * (HEX.svg, MASURI TAB.svg, GUIDES.svg) located next to the script, applies the selected hex color to the Hex layer,
+ * positions and scales sponsor artwork relative to the hex, removes hex paths that overlap sponsor content,
+ * converts imported guide artwork to Illustrator guides, groups and centers layer contents, removes empty layers,
+ * and displays a success or error alert.
+ */
 function main() {
     try {
         // Show configuration dialog
@@ -196,7 +205,11 @@ function main() {
 }
 
 /**
- * Import SVG file by opening it as a document and copying content
+ * Import an SVG's artwork into a specified layer by opening the SVG, copying its artboard content, and pasting it into the target document.
+ * @param {File} svgFile - The SVG file to open and import.
+ * @param {Document} targetDoc - The Illustrator document that will receive the pasted artwork.
+ * @param {Layer} targetLayer - The layer in the target document where the SVG content will be pasted.
+ * @throws {Error} If the SVG cannot be opened, copied, or pasted into the target document.
  */
 function importSVGByOpening(svgFile, targetDoc, targetLayer) {
     try {
@@ -230,7 +243,9 @@ function importSVGByOpening(svgFile, targetDoc, targetLayer) {
 }
 
 /**
- * Group all items on a layer
+ * Group all page items contained directly on the given layer into a single group.
+ * @param {Layer} layer - The Illustrator layer whose top-level pageItems will be grouped.
+ * @throws {Error} If grouping fails.
  */
 function groupLayerContents(layer) {
     try {
@@ -266,9 +281,11 @@ function groupLayerContents(layer) {
 }
 
 /**
- * Position a layer's group to specific coordinates (in cm)
- * Positions the top-left corner of the group's bounding box to the specified coordinates
- * Note: Y coordinate is measured downward from the ruler origin (top-left)
+ * Aligns the top-left corner of the first group on a layer to the specified coordinates on the artboard.
+ * @param {Layer} layer - Illustrator layer whose first groupItem will be positioned.
+ * @param {number} xCm - Target x coordinate in centimeters measured from the left ruler origin.
+ * @param {number} yCm - Target y coordinate in centimeters measured from the top ruler origin (measured downward).
+ * @throws {Error} If positioning fails.
  */
 function positionLayerGroup(layer, xCm, yCm) {
     try {
@@ -299,8 +316,12 @@ function positionLayerGroup(layer, xCm, yCm) {
 }
 
 /**
- * Scale selection to fit within specified dimensions (in cm) while maintaining aspect ratio
- * Scales based on whichever dimension is relatively larger
+ * Scale the given selection to fit within the specified width and height in centimeters while preserving aspect ratio.
+ *
+ * @param {Array} selection - Array of page items (e.g., PageItem, GroupItem) to be scaled; if empty or null the function does nothing.
+ * @param {number} targetWidthCm - Target maximum width in centimeters.
+ * @param {number} targetHeightCm - Target maximum height in centimeters.
+ * @throws {Error} If an error occurs while computing bounds or applying the resize. 
  */
 function scaleToFit(selection, targetWidthCm, targetHeightCm) {
     try {
@@ -344,8 +365,8 @@ function scaleToFit(selection, targetWidthCm, targetHeightCm) {
 }
 
 /**
- * Show configuration dialog for hex color and sponsor position
- * Returns object with color and position, or null if cancelled
+ * Present a dialog to choose the hex color and sponsor position.
+ * @returns {{color: RGBColor, position: string} | null} An object with `color` set to an Illustrator `RGBColor` for the selected hex color and `position` set to either "Normal Hex Sponsor" or "Sweater Hex Sponsor", or `null` if the user cancels.
  */
 function showConfigDialog() {
     // Create dialog window
@@ -410,11 +431,18 @@ function showConfigDialog() {
 }
 
 /**
- * Apply color to all paths in a layer
+ * Apply an Illustrator RGBColor to every path in a layer, traversing nested GroupItem and CompoundPathItem containers.
+ * @param {Layer} layer - The layer whose path items will be updated.
+ * @param {RGBColor} rgbColor - The color to apply to path fills; affected paths will be filled with this color and stroked will be disabled.
  */
 function applyColorToLayer(layer, rgbColor) {
     try {
-        // Recursively apply color to all path items
+        /**
+         * Recursively applies the external `rgbColor` to every PathItem within the provided collection.
+         *
+         * Traverses GroupItem and CompoundPathItem structures and for each PathItem sets `filled = true`, assigns `fillColor = rgbColor`, and disables stroke (`stroked = false`).
+         * @param {Array} items - A collection of page items (e.g., layer.pageItems, group.pageItems) to process.
+         */
         function applyColorToItems(items) {
             for (var i = 0; i < items.length; i++) {
                 var item = items[i];
@@ -443,7 +471,10 @@ function applyColorToLayer(layer, rgbColor) {
 }
 
 /**
- * Remove hex paths that overlap with sponsor layer content
+ * Removes path items on the hex layer whose bounding boxes intersect the combined bounds of the sponsor layer.
+ * @param {Layer} hexLayer - The layer containing hex path items to evaluate and remove.
+ * @param {Layer} sponsorLayer - The layer whose combined content bounds are used to test for overlap.
+ * @throws {Error} If the removal operation fails.
  */
 function removeOverlappingHexPaths(hexLayer, sponsorLayer) {
     try {
@@ -480,7 +511,9 @@ function removeOverlappingHexPaths(hexLayer, sponsorLayer) {
 }
 
 /**
- * Get the overall bounding box of all items in a layer
+ * Compute the combined geometric bounding box for all page items in a layer.
+ * @param {Layer} layer - The Illustrator Layer to measure.
+ * @returns {(number[]|null)} An array [left, top, right, bottom] in document points representing the bounding box, or `null` if the layer contains no page items.
  */
 function getLayerBounds(layer) {
     var items = layer.pageItems;
@@ -501,7 +534,9 @@ function getLayerBounds(layer) {
 }
 
 /**
- * Recursively collect all path items from a collection
+ * Collects PathItem and CompoundPathItem objects from a collection into an array, traversing nested GroupItems.
+ * @param {Iterable} items - A collection of page items (e.g., layer.pageItems or group.pageItems) to traverse.
+ * @param {Array} pathArray - Array to which found PathItem and CompoundPathItem objects will be appended.
  */
 function collectPathItems(items, pathArray) {
     for (var i = 0; i < items.length; i++) {
@@ -519,8 +554,11 @@ function collectPathItems(items, pathArray) {
 }
 
 /**
- * Check if two bounding boxes intersect
- * Bounds format: [left, top, right, bottom]
+ * Determine whether two axis-aligned bounding boxes intersect.
+ * 
+ * @param {number[]} bounds1 - Bounds as [left, top, right, bottom] for the first rectangle.
+ * @param {number[]} bounds2 - Bounds as [left, top, right, bottom] for the second rectangle.
+ * @returns {boolean} `true` if the rectangles overlap horizontally and vertically, `false` otherwise.
  */
 function boundsIntersect(bounds1, bounds2) {
     // Two rectangles intersect if:
@@ -534,10 +572,14 @@ function boundsIntersect(bounds1, bounds2) {
 }
 
 /**
- * Position sponsor layer relative to hex layer
- * @param {Layer} sponsorLayer - The sponsor layer to position
- * @param {Layer} hexLayer - The hex layer to align with
- * @param {String} positionType - "Normal Hex Sponsor" or "Sweater Hex Sponsor"
+ * Aligns the sponsor layer relative to the hex layer according to the chosen positioning mode.
+ *
+ * Positions the sponsor layer by translating all its page items so they are either horizontally centered and bottom-aligned with the hex layer ("Normal Hex Sponsor"), or both horizontally and vertically centered within the hex layer ("Sweater Hex Sponsor"). If either layer has no content, the function does nothing.
+ *
+ * @param {Layer} sponsorLayer - Layer containing sponsor artwork to be moved.
+ * @param {Layer} hexLayer - Layer whose bounds are used as the alignment reference.
+ * @param {String} positionType - Alignment mode: "Normal Hex Sponsor" or "Sweater Hex Sponsor".
+ * @throws {Error} If positioning fails due to an unexpected runtime error.
  */
 function positionSponsorLayer(sponsorLayer, hexLayer, positionType) {
     try {
@@ -585,7 +627,9 @@ function positionSponsorLayer(sponsorLayer, hexLayer, positionType) {
 }
 
 /**
- * Remove all empty layers from the document
+ * Remove layers that contain no page items from the given document.
+ * Any errors encountered while removing individual layers are ignored.
+ * @param {Document} doc - The Illustrator document to clean of empty layers.
  */
 function removeEmptyLayers(doc) {
     try {
@@ -605,7 +649,11 @@ function removeEmptyLayers(doc) {
 }
 
 /**
- * Import guides from SVG file and convert them to Illustrator guides
+ * Create a "Guides" layer in the target document, import all artwork from the given SVG into that layer, translate the pasted items so their top-left sits 0.5 cm from the artboard top-left, and convert the pasted items into Illustrator guides.
+ * @param {File} svgFile - The SVG file to import.
+ * @param {Document} targetDoc - The Illustrator document to receive the guides.
+ * @returns {Layer} The newly created Guides layer containing the converted guide items.
+ * @throws {Error} If the SVG cannot be opened, pasted, positioned, or converted to guides.
  */
 function importGuidesFromSVG(svgFile, targetDoc) {
     try {
@@ -680,7 +728,12 @@ function importGuidesFromSVG(svgFile, targetDoc) {
 }
 
 /**
- * Convert items to guides recursively
+ * Recursively convert PathItem objects within a collection to guides.
+ *
+ * Traverses the provided collection of page items and marks each PathItem as a guide.
+ * If a GroupItem or CompoundPathItem is encountered, its child items are processed recursively.
+ *
+ * @param {Array} items - An array or array-like collection of page items (PageItems, GroupItems, CompoundPathItems) to convert.
  */
 function convertToGuides(items) {
     for (var i = 0; i < items.length; i++) {
@@ -697,9 +750,10 @@ function convertToGuides(items) {
 }
 
 /**
- * Convert hex color code to RGBColor object
- * @param {String} hex - Hex color code (e.g., "#FFFFFF" or "#FFF")
- * @return {RGBColor} - Illustrator RGBColor object
+ * Convert a hex color string into RGB values.
+ *
+ * @param {string} hex - Hex color string in 3- or 6-digit form, with or without a leading `#` (e.g., `#FFF` or `FFFFFF`).
+ * @return {RGBColor} An Illustrator `RGBColor` whose `red`, `green`, and `blue` fields are set to the corresponding 0–255 values.
  */
 function hexToRGB(hex) {
     // Remove # if present
@@ -727,9 +781,10 @@ function hexToRGB(hex) {
 }
 
 /**
- * Group all content from specified layers and center on artboard
- * @param {Document} doc - The document
- * @param {Array} layers - Array of layers to group together
+ * Group the first group item from each provided layer into a single "Artwork" group, rename its layer to "Artwork", and center that group on the document's first artboard.
+ * @param {Document} doc - The Illustrator document containing the layers.
+ * @param {Array<Layer>} layers - Array of Layer objects whose first groupItems (if present) will be combined.
+ * @throws {Error} If grouping or translation fails.
  */
 function groupAndCenterLayers(doc, layers) {
     try {
