@@ -396,6 +396,8 @@ function scaleToFit(selection, targetWidthCm, targetHeightCm) {
  *
  * Shows a configuration window with a color dropdown and a sponsor-position dropdown and returns the selected values, or `null` if the user cancels.
  * @returns {{color: RGBColor, position: string} | null} `color` is an Illustrator `RGBColor` for the selected hex color; `position` is either "Bottom Sponsor" or "Middle Sponsor".
+ */
+
 function showConfigDialog() {
     // Create dialog window
     var dialog = new Window("dialog", "Hex Document Configuration");
