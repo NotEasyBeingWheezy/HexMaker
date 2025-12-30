@@ -731,6 +731,9 @@ function groupAndCenterLayers(doc, layers) {
             // Get the master group (the selection after grouping)
             var masterGroup = doc.selection[0];
 
+            // Name the group "Artwork"
+            masterGroup.name = "Artwork";
+
             // Get artboard bounds
             var artboard = doc.artboards[0];
             var artboardRect = artboard.artboardRect; // [left, top, right, bottom]
