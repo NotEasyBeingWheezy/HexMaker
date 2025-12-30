@@ -168,15 +168,41 @@ function main() {
         // Remove hex paths that overlap with sponsor content
         removeOverlappingHexPaths(hexLayer, sponsorLayer);
 
-        // Position Masuri Tab layer based on sponsor position mode
+        // Group hex and sponsor together and center on artboard
+        groupAndCenterLayers(newDoc, [sponsorLayer, hexLayer]);
+
+        // Position Masuri Tab layer based on sponsor position mode (after centering hex+sponsor)
         if (sponsorPosition == "Normal Hex Sponsor") {
             positionLayerGroup(masuriTabLayer, 5.7281, 18.8218);
         } else if (sponsorPosition == "Sweater Hex Sponsor") {
             positionLayerGroup(masuriTabLayer, 5.7281, 8.4713);
         }
 
-        // Group all content layers together and center on artboard
-        groupAndCenterLayers(newDoc, [sponsorLayer, hexLayer, masuriTabLayer]);
+        // Group Masuri Tab with the centered hex+sponsor group into final "Artwork" group
+        var artworkGroups = [];
+        // Find the hex+sponsor "Artwork" group
+        for (var i = 0; i < newDoc.groupItems.length; i++) {
+            if (newDoc.groupItems[i].name == "Artwork") {
+                artworkGroups.push(newDoc.groupItems[i]);
+                break;
+            }
+        }
+        // Add Masuri Tab group
+        if (masuriTabLayer.groupItems.length > 0) {
+            artworkGroups.push(masuriTabLayer.groupItems[0]);
+        }
+
+        // Group them together
+        if (artworkGroups.length > 0) {
+            newDoc.selection = artworkGroups;
+            app.executeMenuCommand("group");
+            if (newDoc.selection.length > 0) {
+                newDoc.selection[0].name = "Artwork";
+                if (newDoc.selection[0].layer) {
+                    newDoc.selection[0].layer.name = "Artwork";
+                }
+            }
+        }
 
         // Remove any empty layers
         removeEmptyLayers(newDoc);
