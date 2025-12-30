@@ -170,9 +170,9 @@ function main() {
 
         // Position Masuri Tab layer based on sponsor position mode
         if (sponsorPosition == "Normal Hex Sponsor") {
-            positionLayerGroup(masuriTabLayer, 5.7135, 18.8111);
+            positionLayerGroup(masuriTabLayer, 5.7281, 18.8218);
         } else if (sponsorPosition == "Sweater Hex Sponsor") {
-            positionLayerGroup(masuriTabLayer, 5.7135, 8.4606);
+            positionLayerGroup(masuriTabLayer, 5.7281, 8.4713);
         }
 
         // Group all content layers together and center on artboard
