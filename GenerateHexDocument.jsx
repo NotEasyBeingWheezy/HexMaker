@@ -55,12 +55,12 @@ function main() {
         // Create new document with centimeter units
         // 13cm x 34cm
         var docPreset = new DocumentPreset();
+        docPreset.units = RulerUnits.Centimeters;  // Set units FIRST
         docPreset.width = 13;
         docPreset.height = 34;
-        docPreset.units = RulerUnits.Centimeters;
         docPreset.colorMode = DocumentColorSpace.RGB;
 
-        var newDoc = app.documents.addDocument(DocumentColorSpace.RGB, docPreset);
+        var newDoc = app.documents.addDocument("Print", docPreset);
 
         // Set ruler origin so that the top-left corner of the artboard is at 0,0
         // Get the artboard bounds
