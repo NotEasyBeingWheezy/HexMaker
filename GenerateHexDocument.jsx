@@ -173,7 +173,7 @@ function main() {
         // Deselect all
         newDoc.selection = null;
 
-        alert("Document created successfully!\n\nLayers (top to bottom):\n1. Masuri Tab\n2. Hex\n3. Sponsor\n\nAll layer contents have been grouped.");
+        alert("Hex created successfully!");
 
     } catch (e) {
         alert("Error: " + e.message + "\nLine: " + e.line);
