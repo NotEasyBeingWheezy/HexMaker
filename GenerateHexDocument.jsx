@@ -58,7 +58,7 @@ function main() {
         docPreset.units = RulerUnits.Centimeters;  // Set units FIRST
         docPreset.width = 368.504;
         docPreset.height = 963.78;
-        docPreset.colorMode = DocumentColorSpace.RGB;
+        docPreset.colorMode = DocumentColorSpace.CMYK;
 
         var newDoc = app.documents.addDocument("Print", docPreset);
 
