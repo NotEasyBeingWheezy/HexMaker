@@ -140,6 +140,17 @@ function main() {
             guidesLayer.locked = true;
         }
 
+        // Name the groups
+        if (sponsorLayer.groupItems.length > 0) {
+            sponsorLayer.groupItems[0].name = "Sponsor";
+        }
+        if (hexLayer.groupItems.length > 0) {
+            hexLayer.groupItems[0].name = "Hex";
+        }
+        if (masuriTabLayer.groupItems.length > 0) {
+            masuriTabLayer.groupItems[0].name = "Masuri Tab";
+        }
+
         // Position layers based on sponsor position mode
         if (sponsorPosition == "Normal Hex Sponsor") {
             // Hex position for Normal mode
