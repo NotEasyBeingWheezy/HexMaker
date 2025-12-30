@@ -52,16 +52,15 @@ function main() {
             return;
         }
 
-        // Create new document
-        // 13cm = 368.503937 points, 34cm = 963.779528 points
-        var docWidth = 368.503937;
-        var docHeight = 963.779528;
+        // Create new document with centimeter units
+        // 13cm x 34cm
+        var docPreset = new DocumentPreset();
+        docPreset.width = 13;
+        docPreset.height = 34;
+        docPreset.units = RulerUnits.Centimeters;
+        docPreset.colorMode = DocumentColorSpace.RGB;
 
-        var newDoc = app.documents.add(
-            DocumentColorSpace.RGB,
-            docWidth,
-            docHeight
-        );
+        var newDoc = app.documents.addDocument(DocumentColorSpace.RGB, docPreset);
 
         // Set ruler origin so that the top-left corner of the artboard is at 0,0
         // Get the artboard bounds
