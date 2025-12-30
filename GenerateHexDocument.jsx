@@ -136,6 +136,8 @@ function main() {
         groupLayerContents(masuriTabLayer);
         if (guidesLayer) {
             groupLayerContents(guidesLayer);
+            // Lock the Guides layer
+            guidesLayer.locked = true;
         }
 
         // Position layers based on sponsor position mode
@@ -150,6 +152,9 @@ function main() {
             // Masuri Tab position for Sweater mode
             positionLayerGroup(masuriTabLayer, 5.7135, 8.4606);
         }
+
+        // Group all content layers together and center on artboard
+        groupAndCenterLayers(newDoc, [sponsorLayer, hexLayer, masuriTabLayer]);
 
         // Remove any empty layers
         removeEmptyLayers(newDoc);
@@ -695,4 +700,64 @@ function hexToRGB(hex) {
     rgbColor.blue = b;
 
     return rgbColor;
+}
+
+/**
+ * Group all content from specified layers and center on artboard
+ * @param {Document} doc - The document
+ * @param {Array} layers - Array of layers to group together
+ */
+function groupAndCenterLayers(doc, layers) {
+    try {
+        // Clear selection
+        doc.selection = null;
+
+        // Select all groups from the specified layers
+        var allGroups = [];
+        for (var i = 0; i < layers.length; i++) {
+            if (layers[i].groupItems.length > 0) {
+                allGroups.push(layers[i].groupItems[0]);
+            }
+        }
+
+        // If we have groups to work with
+        if (allGroups.length > 0) {
+            // Set selection to all groups
+            doc.selection = allGroups;
+
+            // Group them together
+            app.executeMenuCommand("group");
+
+            // Get the master group (the selection after grouping)
+            var masterGroup = doc.selection[0];
+
+            // Get artboard bounds
+            var artboard = doc.artboards[0];
+            var artboardRect = artboard.artboardRect; // [left, top, right, bottom]
+
+            // Calculate artboard center
+            var artboardCenterX = (artboardRect[0] + artboardRect[2]) / 2;
+            var artboardCenterY = (artboardRect[1] + artboardRect[3]) / 2;
+
+            // Get group bounds
+            var groupBounds = masterGroup.geometricBounds; // [left, top, right, bottom]
+
+            // Calculate group center
+            var groupCenterX = (groupBounds[0] + groupBounds[2]) / 2;
+            var groupCenterY = (groupBounds[1] + groupBounds[3]) / 2;
+
+            // Calculate translation needed to center the group
+            var deltaX = artboardCenterX - groupCenterX;
+            var deltaY = artboardCenterY - groupCenterY;
+
+            // Move the group to center
+            masterGroup.translate(deltaX, deltaY);
+        }
+
+        // Clear selection
+        doc.selection = null;
+
+    } catch (e) {
+        throw new Error("Failed to group and center layers: " + e.message);
+    }
 }
