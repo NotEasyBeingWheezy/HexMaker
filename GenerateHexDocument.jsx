@@ -63,9 +63,6 @@ function main() {
             docHeight
         );
 
-        // Set document units to centimeters
-        newDoc.rulerUnits = RulerUnits.Centimeters;
-
         // Set ruler origin so that the top-left corner of the artboard is at 0,0
         // Get the artboard bounds
         var artboard = newDoc.artboards[0];
@@ -73,6 +70,9 @@ function main() {
 
         // Set ruler origin to the top-left corner of the artboard
         newDoc.rulerOrigin = [artboardRect[0], artboardRect[1]];
+
+        // Set document units to centimeters (after document initialization)
+        newDoc.rulerUnits = RulerUnits.Centimeters;
 
         // Remove the default layer
         if (newDoc.layers.length > 0) {
