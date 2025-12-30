@@ -8,6 +8,9 @@
  * - SVG templates imported by opening and copying
  */
 
+// Constants
+var POINTS_PER_CM = 28.3464567;
+
 // Check if there's an active document
 if (app.documents.length === 0) {
     alert("Please open a document before running this script.");
@@ -166,16 +169,13 @@ function main() {
             masuriTabLayer.groupItems[0].name = "Masuri Tab";
         }
 
-        // Position layers based on sponsor position mode
+        // Position hex layer (same for both modes)
+        positionLayerGroup(hexLayer, 4.3313, 2.4895);
+
+        // Position Masuri Tab layer based on sponsor position mode
         if (sponsorPosition == "Normal Hex Sponsor") {
-            // Hex position for Normal mode
-            positionLayerGroup(hexLayer, 4.3313, 2.4895);
-            // Masuri Tab position for Normal mode
             positionLayerGroup(masuriTabLayer, 5.7135, 18.8111);
         } else if (sponsorPosition == "Sweater Hex Sponsor") {
-            // Hex position for Sweater mode
-            positionLayerGroup(hexLayer, 4.3313, 2.4895);
-            // Masuri Tab position for Sweater mode
             positionLayerGroup(masuriTabLayer, 5.7135, 8.4606);
         }
 
@@ -272,9 +272,9 @@ function groupLayerContents(layer) {
  */
 function positionLayerGroup(layer, xCm, yCm) {
     try {
-        // Convert cm to points (1 cm = 28.3464567 points)
-        var xPoints = xCm * 28.3464567;
-        var yPoints = yCm * 28.3464567;
+        // Convert cm to points
+        var xPoints = xCm * POINTS_PER_CM;
+        var yPoints = yCm * POINTS_PER_CM;
 
         // Get the first groupItem on the layer (created by groupLayerContents)
         if (layer.groupItems.length > 0) {
@@ -304,17 +304,19 @@ function positionLayerGroup(layer, xCm, yCm) {
  */
 function scaleToFit(selection, targetWidthCm, targetHeightCm) {
     try {
+        var i;
+
         if (!selection || selection.length === 0) {
             return;
         }
 
         // Convert target dimensions from cm to points
-        var targetWidthPt = targetWidthCm * 28.3464567;
-        var targetHeightPt = targetHeightCm * 28.3464567;
+        var targetWidthPt = targetWidthCm * POINTS_PER_CM;
+        var targetHeightPt = targetHeightCm * POINTS_PER_CM;
 
         // Get bounding box of selection
         var bounds = selection[0].geometricBounds;
-        for (var i = 1; i < selection.length; i++) {
+        for (i = 1; i < selection.length; i++) {
             var itemBounds = selection[i].geometricBounds;
             bounds[0] = Math.min(bounds[0], itemBounds[0]); // left
             bounds[1] = Math.max(bounds[1], itemBounds[1]); // top
@@ -334,7 +336,7 @@ function scaleToFit(selection, targetWidthCm, targetHeightCm) {
         var scaleFactor = Math.min(scaleX, scaleY);
 
         // Apply uniform scaling to all selected items
-        for (var i = 0; i < selection.length; i++) {
+        for (i = 0; i < selection.length; i++) {
             selection[i].resize(scaleFactor, scaleFactor);
         }
 
@@ -447,6 +449,8 @@ function applyColorToLayer(layer, rgbColor) {
  */
 function removeOverlappingHexPaths(hexLayer, sponsorLayer) {
     try {
+        var i;
+
         // Get bounding box of all sponsor content
         var sponsorBounds = getLayerBounds(sponsorLayer);
 
@@ -460,7 +464,7 @@ function removeOverlappingHexPaths(hexLayer, sponsorLayer) {
 
         // Check each hex path for overlap and mark for deletion
         var pathsToDelete = [];
-        for (var i = 0; i < hexPaths.length; i++) {
+        for (i = 0; i < hexPaths.length; i++) {
             var pathBounds = hexPaths[i].geometricBounds;
 
             // Check if bounding boxes intersect
@@ -470,7 +474,7 @@ function removeOverlappingHexPaths(hexLayer, sponsorLayer) {
         }
 
         // Delete overlapping paths
-        for (var i = 0; i < pathsToDelete.length; i++) {
+        for (i = 0; i < pathsToDelete.length; i++) {
             pathsToDelete[i].remove();
         }
 
@@ -609,6 +613,8 @@ function removeEmptyLayers(doc) {
  */
 function importGuidesFromSVG(svgFile, targetDoc) {
     try {
+        var i;
+
         // Create a Guides layer
         var guidesLayer = targetDoc.layers.add();
         guidesLayer.name = "Guides";
@@ -637,13 +643,13 @@ function importGuidesFromSVG(svgFile, targetDoc) {
 
             // Position the guides 0.5cm from top-left corner (same for both modes)
             // Convert 0.5cm to points
-            var targetX = 0.5 * 28.3464567; // 0.5cm in points
-            var targetY = -0.5 * 28.3464567; // 0.5cm downward (negative in Illustrator coords)
+            var targetX = 0.5 * POINTS_PER_CM;
+            var targetY = -0.5 * POINTS_PER_CM;
 
             // Get bounding box of all pasted items
             if (pastedItems.length > 0) {
                 var bounds = pastedItems[0].geometricBounds;
-                for (var i = 1; i < pastedItems.length; i++) {
+                for (i = 1; i < pastedItems.length; i++) {
                     var itemBounds = pastedItems[i].geometricBounds;
                     bounds[0] = Math.min(bounds[0], itemBounds[0]); // left
                     bounds[1] = Math.max(bounds[1], itemBounds[1]); // top
@@ -656,7 +662,7 @@ function importGuidesFromSVG(svgFile, targetDoc) {
                 var deltaY = targetY - bounds[1];
 
                 // Apply translation to all items
-                for (var i = 0; i < pastedItems.length; i++) {
+                for (i = 0; i < pastedItems.length; i++) {
                     pastedItems[i].translate(deltaX, deltaY);
                 }
             }
