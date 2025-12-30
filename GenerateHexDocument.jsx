@@ -63,6 +63,9 @@ function main() {
             docHeight
         );
 
+        // Set document units to centimeters
+        newDoc.rulerUnits = RulerUnits.Centimeters;
+
         // Set ruler origin so that the top-left corner of the artboard is at 0,0
         // Get the artboard bounds
         var artboard = newDoc.artboards[0];
