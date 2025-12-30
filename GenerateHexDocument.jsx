@@ -143,7 +143,7 @@ function main() {
         importSVGByOpening(masuriTabSVGFile, newDoc, masuriTabLayer);
 
         // Import GUIDES.svg and convert to guides
-        var guidesLayer = importGuidesFromSVG(guidesSVGFile, newDoc, sponsorPosition);
+        var guidesLayer = importGuidesFromSVG(guidesSVGFile, newDoc);
 
         // Group all items on each layer
         groupLayerContents(sponsorLayer);
@@ -606,9 +606,8 @@ function removeEmptyLayers(doc) {
 
 /**
  * Import guides from SVG file and convert them to Illustrator guides
- * Position guides based on sponsor position mode
  */
-function importGuidesFromSVG(svgFile, targetDoc, sponsorPosition) {
+function importGuidesFromSVG(svgFile, targetDoc) {
     try {
         // Create a Guides layer
         var guidesLayer = targetDoc.layers.add();
@@ -678,7 +677,6 @@ function importGuidesFromSVG(svgFile, targetDoc, sponsorPosition) {
     } catch (e) {
         throw new Error("Failed to import guides: " + e.message);
     }
-    return null;
 }
 
 /**
