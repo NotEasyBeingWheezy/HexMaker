@@ -8,6 +8,8 @@
  * - SVG templates imported by opening and copying
  */
 
+
+
 // Constants
 var POINTS_PER_CM = 28.3464567;
 
@@ -42,9 +44,9 @@ function main() {
         var scriptFolder = scriptFile.parent;
 
         // Define SVG file paths
-        var hexSVGFile = new File(scriptFolder + "/HEX.svg");
-        var masuriTabSVGFile = new File(scriptFolder + "/MASURI TAB.svg");
-        var guidesSVGFile = new File(scriptFolder + "/GUIDES.svg");
+        var hexSVGFile = new File(scriptFolder + "/assets/HEX.svg");
+        var masuriTabSVGFile = new File(scriptFolder + "/assets/MASURI TAB.svg");
+        var guidesSVGFile = new File(scriptFolder + "/assets/GUIDES.svg");
 
         // Verify SVG files exist
         if (!hexSVGFile.exists) {
@@ -67,7 +69,11 @@ function main() {
         docPreset.height = 963.78; // 34cm in points
         docPreset.colorMode = DocumentColorSpace.CMYK;
 
+
         var newDoc = app.documents.addDocument("Print", docPreset);
+
+        app.preferences.setBooleanPreference("showTransparencyGrid", true);
+
 
         // Set ruler origin so that the top-left corner of the artboard is at 0,0
         // Get the artboard bounds
