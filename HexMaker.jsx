@@ -411,7 +411,8 @@ function showConfigDialog() {
     // Add hex color dropdown group
     var colorGroup = dialog.add("group");
     colorGroup.orientation = "row";
-    colorGroup.add("statictext", undefined, "Hex Color:");
+    var colorLabel = colorGroup.add("statictext", undefined, "Hex Color:");
+    colorLabel.preferredSize.width = 120;
 
     var colorDropdown = colorGroup.add("dropdownlist", undefined, ["Black", "White", "Navy", "Yellow", "Pink", "Red", "Maroon", "Green", "Lime Green", "Emerald Green", "Bottle Green", "Light Blue", "Royal Blue"]);
     colorDropdown.selection = 0; // Default to Black
@@ -420,7 +421,8 @@ function showConfigDialog() {
     // Add sponsor position dropdown group
     var positionGroup = dialog.add("group");
     positionGroup.orientation = "row";
-    positionGroup.add("statictext", undefined, "Sponsor Position:");
+    var positionLabel = positionGroup.add("statictext", undefined, "Sponsor Position:");
+    positionLabel.preferredSize.width = 120;
 
     var positionDropdown = positionGroup.add("dropdownlist", undefined, ["Bottom Sponsor", "Middle Sponsor"]);
     positionDropdown.selection = 0; // Default to Normal
