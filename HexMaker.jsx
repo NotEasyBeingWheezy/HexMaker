@@ -1,14 +1,12 @@
 /**
- * Generate Hex Document
+ * HexMaker v1.0.0
  *
- * This script creates a new Illustrator document with:
+ * This script creates a new Hex Production File with:
  * - Artboard size: 13cm x 34cm
- * - Three layers: Sponsor (bottom), Hex (middle), Masuri Tab (top)
- * - Artwork copied from the active document
- * - SVG templates imported by opening and copying
+ * - Two layers: 
+ *   - Guides (imported from GUIDES.svg, converted to guides)
+ *   - Artwork (contains Sponsor, Hex, and Masuri Tab groups)
  */
-
-
 
 // Constants
 var POINTS_PER_CM = 28.3464567;
