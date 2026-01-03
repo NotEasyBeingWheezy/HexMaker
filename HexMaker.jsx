@@ -251,13 +251,33 @@ function main() {
                 if (newDoc.selection.length > 0) {
                     sponsorHexGroup = newDoc.selection[0];
                     sponsorHexGroup.name = "SponsorHex_Temp";
+                    sponsorHexGroup.locked = false;
+                    sponsorHexGroup.hidden = false;
                 }
                 newDoc.selection = null;
             }
 
+            // Debug: Check if both groups exist and can be selected
+            alert("Before step 2:\nsponsorHexGroup exists: " + (sponsorHexGroup != null) +
+                  "\nmasuriTabGroup exists: " + (masuriTabGroup != null) +
+                  "\nsponsorHex layer: " + (sponsorHexGroup ? sponsorHexGroup.layer.name : "null") +
+                  "\nmasuri layer: " + (masuriTabGroup ? masuriTabGroup.layer.name : "null"));
+
             // Step 2: Group that with masuri tab to create final Artwork group
             if (sponsorHexGroup && masuriTabGroup) {
+                // Try selecting sponsorHexGroup alone
+                newDoc.selection = [sponsorHexGroup];
+                var sponsorHexSelects = (newDoc.selection.length == 1);
+
+                // Try selecting masuriTabGroup alone
+                newDoc.selection = [masuriTabGroup];
+                var masuriSelects = (newDoc.selection.length == 1);
+
+                alert("Can select for step 2?\nsponsorHex: " + sponsorHexSelects + "\nmasuri: " + masuriSelects);
+
                 newDoc.selection = [sponsorHexGroup, masuriTabGroup];
+                alert("Combined selection length: " + newDoc.selection.length);
+
                 if (newDoc.selection.length === 2) {
                     app.executeMenuCommand("group");
                     if (newDoc.selection.length > 0) {
@@ -265,7 +285,7 @@ function main() {
                         masterGroup.name = "Artwork";
                     }
                 } else {
-                    alert("ERROR: Could not group sponsorHex with masuriTab. Selected: " + newDoc.selection.length);
+                    alert("ERROR: Could not select both. Selected: " + newDoc.selection.length);
                 }
                 newDoc.selection = null;
             }
