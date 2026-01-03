@@ -168,14 +168,31 @@ function main() {
         newDoc.activeLayer = artworkLayer;
         artworkLayer.locked = false;
 
-        var itemCountBefore = artworkLayer.pageItems.length;
+        // Track existing items before import to identify new ones
+        var existingItems = [];
+        for (var i = 0; i < artworkLayer.pageItems.length; i++) {
+            existingItems.push(artworkLayer.pageItems[i]);
+        }
+
         importSVGByOpening(masuriTabSVGFile, newDoc, artworkLayer);
 
-        // Store Masuri Tab items
+        // Collect only newly added items (Masuri Tab)
         var masuriTabItems = [];
-        for (var i = itemCountBefore; i < artworkLayer.pageItems.length; i++) {
-            masuriTabItems.push(artworkLayer.pageItems[i]);
+        for (var i = 0; i < artworkLayer.pageItems.length; i++) {
+            var item = artworkLayer.pageItems[i];
+            var isExisting = false;
+            for (var j = 0; j < existingItems.length; j++) {
+                if (item == existingItems[j]) {
+                    isExisting = true;
+                    break;
+                }
+            }
+            if (!isExisting) {
+                masuriTabItems.push(item);
+            }
         }
+
+        alert("Masuri Tab items collected: " + masuriTabItems.length + " items");
 
         // Import GUIDES.svg and convert to guides
         var guidesLayer = importGuidesFromSVG(guidesSVGFile, newDoc);
