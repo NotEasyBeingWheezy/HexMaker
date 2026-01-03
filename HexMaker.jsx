@@ -265,6 +265,12 @@ function main() {
             newDoc.selection = null;
         }
 
+        // Debug: Check Masuri Tab position after grouping
+        if (masuriTabGroup) {
+            var debugAfterGroup = masuriTabGroup.geometricBounds;
+            alert("Masuri Tab AFTER grouping:\n[" + debugAfterGroup + "]");
+        }
+
         // Remove any empty layers
         removeEmptyLayers(newDoc);
 
