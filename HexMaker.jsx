@@ -241,54 +241,16 @@ function main() {
             masuriTabGroup.hidden = false;
         }
 
-        var sponsorHexGroup = null;
+        // WORKAROUND: Illustrator won't multi-select these groups, so manually move them
         if (sponsorGroup && hexGroup && masuriTabGroup) {
-            // WORKAROUND: Can't select all 3 together, so group in two steps
-            // Step 1: Group sponsor and hex together
-            newDoc.selection = [sponsorGroup, hexGroup];
-            if (newDoc.selection.length === 2) {
-                app.executeMenuCommand("group");
-                if (newDoc.selection.length > 0) {
-                    sponsorHexGroup = newDoc.selection[0];
-                    sponsorHexGroup.name = "SponsorHex_Temp";
-                    sponsorHexGroup.locked = false;
-                    sponsorHexGroup.hidden = false;
-                }
-                newDoc.selection = null;
-            }
+            // Create a new master group on the artwork layer
+            var masterGroup = artworkLayer.groupItems.add();
+            masterGroup.name = "Artwork";
 
-            // Debug: Check if both groups exist and can be selected
-            alert("Before step 2:\nsponsorHexGroup exists: " + (sponsorHexGroup != null) +
-                  "\nmasuriTabGroup exists: " + (masuriTabGroup != null) +
-                  "\nsponsorHex layer: " + (sponsorHexGroup ? sponsorHexGroup.layer.name : "null") +
-                  "\nmasuri layer: " + (masuriTabGroup ? masuriTabGroup.layer.name : "null"));
-
-            // Step 2: Group that with masuri tab to create final Artwork group
-            if (sponsorHexGroup && masuriTabGroup) {
-                // Try selecting sponsorHexGroup alone
-                newDoc.selection = [sponsorHexGroup];
-                var sponsorHexSelects = (newDoc.selection.length == 1);
-
-                // Try selecting masuriTabGroup alone
-                newDoc.selection = [masuriTabGroup];
-                var masuriSelects = (newDoc.selection.length == 1);
-
-                alert("Can select for step 2?\nsponsorHex: " + sponsorHexSelects + "\nmasuri: " + masuriSelects);
-
-                newDoc.selection = [sponsorHexGroup, masuriTabGroup];
-                alert("Combined selection length: " + newDoc.selection.length);
-
-                if (newDoc.selection.length === 2) {
-                    app.executeMenuCommand("group");
-                    if (newDoc.selection.length > 0) {
-                        masterGroup = newDoc.selection[0];
-                        masterGroup.name = "Artwork";
-                    }
-                } else {
-                    alert("ERROR: Could not select both. Selected: " + newDoc.selection.length);
-                }
-                newDoc.selection = null;
-            }
+            // Move all three groups into the master group
+            sponsorGroup.moveToBeginning(masterGroup);
+            hexGroup.moveToBeginning(masterGroup);
+            masuriTabGroup.moveToBeginning(masterGroup);
         }
 
         // Now position the individual groups within the master group
