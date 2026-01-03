@@ -226,12 +226,33 @@ function main() {
         // Group all three groups together FIRST, before positioning
         // This avoids issues with the group command failing on moved items
         var masterGroup = null;
+
+        // Debug: Check if all groups exist
+        alert("Before grouping:\nSponsor exists: " + (sponsorGroup != null) +
+              "\nHex exists: " + (hexGroup != null) +
+              "\nMasuri Tab exists: " + (masuriTabGroup != null) +
+              "\nSponsor items: " + (sponsorGroup ? sponsorGroup.pageItems.length : 0) +
+              "\nHex items: " + (hexGroup ? hexGroup.pageItems.length : 0) +
+              "\nMasuri Tab items: " + (masuriTabGroup ? masuriTabGroup.pageItems.length : 0));
+
         if (sponsorGroup && hexGroup && masuriTabGroup) {
             newDoc.selection = [sponsorGroup, hexGroup, masuriTabGroup];
+
+            // Debug: Check selection before grouping
+            alert("Selection before group command:\nCount: " + newDoc.selection.length);
+
             app.executeMenuCommand("group");
+
+            // Debug: Check selection after grouping
+            alert("Selection after group command:\nCount: " + newDoc.selection.length +
+                  "\nType: " + (newDoc.selection.length > 0 ? newDoc.selection[0].typename : "none"));
+
             if (newDoc.selection.length > 0) {
                 masterGroup = newDoc.selection[0];
                 masterGroup.name = "Artwork";
+
+                // Debug: Check what's in the master group
+                alert("Master group created:\nGroup items: " + masterGroup.groupItems.length);
             }
             newDoc.selection = null;
         }
