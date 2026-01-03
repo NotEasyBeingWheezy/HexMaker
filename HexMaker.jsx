@@ -192,8 +192,6 @@ function main() {
             }
         }
 
-        alert("Masuri Tab items collected: " + masuriTabItems.length + " items");
-
         // Import GUIDES.svg and convert to guides
         var guidesLayer = importGuidesFromSVG(guidesSVGFile, newDoc);
         if (guidesLayer) {
@@ -238,24 +236,6 @@ function main() {
                 masuriTabGroup.name = "Masuri Tab";
             }
             newDoc.selection = null;
-        }
-
-        // Group all three groups together FIRST, before positioning
-        // This avoids issues with the group command failing on moved items
-        var masterGroup = null;
-
-        // Ensure all groups are unlocked and visible
-        if (sponsorGroup) {
-            sponsorGroup.locked = false;
-            sponsorGroup.hidden = false;
-        }
-        if (hexGroup) {
-            hexGroup.locked = false;
-            hexGroup.hidden = false;
-        }
-        if (masuriTabGroup) {
-            masuriTabGroup.locked = false;
-            masuriTabGroup.hidden = false;
         }
 
         // Position the individual groups FIRST, before grouping
@@ -385,43 +365,6 @@ function groupLayerContents(layer) {
 
     } catch (e) {
         throw new Error("Failed to group layer contents: " + e.message);
-    }
-}
-
-/**
- * Aligns the top-left corner of the first group on a layer to the specified coordinates (in centimeters).
- *
- * Positions the group's bounding box so its top-left corner sits at (xCm, yCm). The Y coordinate is measured downward from the document ruler origin (top-left).
- * @param {Layer} layer - Layer whose first groupItem will be positioned; no action if the layer has no groupItems.
- * @param {number} xCm - Target X coordinate in centimeters from the left ruler origin.
- * @param {number} yCm - Target Y coordinate in centimeters from the top ruler origin (measured downward).
- * @throws {Error} If positioning fails.
- */
-function positionLayerGroup(layer, xCm, yCm) {
-    try {
-        // Convert cm to points
-        var xPoints = xCm * POINTS_PER_CM;
-        var yPoints = yCm * POINTS_PER_CM;
-
-        // Get the first groupItem on the layer (created by groupLayerContents)
-        if (layer.groupItems.length > 0) {
-            var group = layer.groupItems[0];
-
-            // Get current position (top-left of bounding box)
-            var bounds = group.geometricBounds; // [left, top, right, bottom]
-            var currentLeft = bounds[0];
-            var currentTop = bounds[1];
-
-            // Calculate how much to move
-            // In Illustrator, Y increases upward, so moving down is negative
-            var deltaX = xPoints - currentLeft;
-            var deltaY = -yPoints - currentTop; // Negative because we're moving down from top
-
-            // Translate the group
-            group.translate(deltaX, deltaY);
-        }
-    } catch (e) {
-        throw new Error("Failed to position layer group: " + e.message);
     }
 }
 
