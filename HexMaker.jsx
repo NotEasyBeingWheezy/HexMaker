@@ -241,9 +241,9 @@ function main() {
         // Position Masuri Tab
         if (masuriTabGroup) {
             if (sponsorPosition == "Bottom Sponsor") {
-                positionGroupAbsolute(masuriTabGroup, 5.7281, 18.8218);
+                positionGroupAbsolute(masuriTabGroup, 5.7281, 18.8218, artboardRect);
             } else if (sponsorPosition == "Middle Sponsor") {
-                positionGroupAbsolute(masuriTabGroup, 5.7281, 8.4713);
+                positionGroupAbsolute(masuriTabGroup, 5.7281, 8.4713, artboardRect);
             }
         }
 
@@ -1049,18 +1049,22 @@ function centerGroupOnArtboard(group, artboardRect) {
 }
 
 /**
- * Position a group at absolute coordinates
+ * Position a group at absolute coordinates relative to artboard's top-left corner
  */
-function positionGroupAbsolute(group, xCm, yCm) {
+function positionGroupAbsolute(group, xCm, yCm, artboardRect) {
     var xPoints = xCm * POINTS_PER_CM;
     var yPoints = yCm * POINTS_PER_CM;
+
+    // Calculate target position relative to artboard's top-left corner
+    var targetX = artboardRect[0] + xPoints;  // artboard left + offset
+    var targetY = artboardRect[1] - yPoints;  // artboard top - offset (subtract because Y increases upward)
 
     var bounds = group.geometricBounds;
     var currentLeft = bounds[0];
     var currentTop = bounds[1];
 
-    var deltaX = xPoints - currentLeft;
-    var deltaY = -yPoints - currentTop;
+    var deltaX = targetX - currentLeft;
+    var deltaY = targetY - currentTop;
 
     group.translate(deltaX, deltaY);
 }
