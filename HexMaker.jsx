@@ -242,33 +242,42 @@ function main() {
         }
 
         if (sponsorGroup && hexGroup && masuriTabGroup) {
-            // Clear selection first
+            // Debug: Check group types
+            alert("Group types:\nS=" + sponsorGroup.typename + "\nH=" + hexGroup.typename + "\nM=" + masuriTabGroup.typename);
+
+            // Try selecting each individually to find which one fails
             newDoc.selection = null;
+            newDoc.selection = [sponsorGroup];
+            var sponsorSelects = (newDoc.selection.length == 1);
 
-            // Build selection array
-            var selArray = [];
-            selArray.push(sponsorGroup);
-            selArray.push(hexGroup);
-            selArray.push(masuriTabGroup);
+            newDoc.selection = null;
+            newDoc.selection = [hexGroup];
+            var hexSelects = (newDoc.selection.length == 1);
 
-            // Set selection
-            newDoc.selection = selArray;
+            newDoc.selection = null;
+            newDoc.selection = [masuriTabGroup];
+            var masuriSelects = (newDoc.selection.length == 1);
 
-            alert("Selection check:\nArray length: " + selArray.length +
-                  "\nSelection length: " + newDoc.selection.length +
-                  "\nLayers: S=" + sponsorGroup.layer.name +
-                  ", H=" + hexGroup.layer.name +
-                  ", M=" + masuriTabGroup.layer.name);
+            alert("Can select individually?\nSponsor: " + sponsorSelects + "\nHex: " + hexSelects + "\nMasuri Tab: " + masuriSelects);
 
+            // If Masuri Tab can't be selected, there's a problem with that group
+            if (!masuriSelects) {
+                alert("Masuri Tab group cannot be selected!\nLayer: " + masuriTabGroup.layer.name +
+                      "\nLocked: " + masuriTabGroup.locked +
+                      "\nHidden: " + masuriTabGroup.hidden +
+                      "\nParent: " + (masuriTabGroup.parent ? masuriTabGroup.parent.typename : "none"));
+            }
+
+            // Try grouping
+            newDoc.selection = [sponsorGroup, hexGroup, masuriTabGroup];
             if (newDoc.selection.length === 3) {
                 app.executeMenuCommand("group");
                 if (newDoc.selection.length > 0) {
                     masterGroup = newDoc.selection[0];
                     masterGroup.name = "Artwork";
-                    alert("Master group created with " + masterGroup.groupItems.length + " groups");
                 }
             } else {
-                alert("ERROR: Could not select all 3 groups! Only selected: " + newDoc.selection.length);
+                alert("Could only select " + newDoc.selection.length + " out of 3 groups");
             }
             newDoc.selection = null;
         }
