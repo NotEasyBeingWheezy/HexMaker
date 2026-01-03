@@ -223,6 +223,20 @@ function main() {
             newDoc.selection = null;
         }
 
+        // Group all three groups together FIRST, before positioning
+        // This avoids issues with the group command failing on moved items
+        var masterGroup = null;
+        if (sponsorGroup && hexGroup && masuriTabGroup) {
+            newDoc.selection = [sponsorGroup, hexGroup, masuriTabGroup];
+            app.executeMenuCommand("group");
+            if (newDoc.selection.length > 0) {
+                masterGroup = newDoc.selection[0];
+                masterGroup.name = "Artwork";
+            }
+            newDoc.selection = null;
+        }
+
+        // Now position the individual groups within the master group
         // Position sponsor relative to hex
         if (sponsorGroup && hexGroup) {
             positionGroupRelativeToGroup(sponsorGroup, hexGroup, sponsorPosition);
@@ -233,49 +247,18 @@ function main() {
             removeOverlappingPathsInGroups(hexGroup, sponsorGroup);
         }
 
-        // Center hex and sponsor together (without grouping them yet)
+        // Center hex and sponsor together
         if (hexGroup && sponsorGroup) {
             centerTwoGroupsOnArtboard(hexGroup, sponsorGroup, artboardRect);
         }
 
         // Position Masuri Tab
         if (masuriTabGroup) {
-            var debugBefore = masuriTabGroup.geometricBounds;
             if (sponsorPosition == "Bottom Sponsor") {
                 positionGroupAbsolute(masuriTabGroup, 5.7281, 18.8218, artboardRect);
             } else if (sponsorPosition == "Middle Sponsor") {
                 positionGroupAbsolute(masuriTabGroup, 5.7281, 8.4713, artboardRect);
             }
-            var debugAfter = masuriTabGroup.geometricBounds;
-            alert("Masuri Tab Debug:\nArtboard: [" + artboardRect + "]\nBefore: [" + debugBefore + "]\nAfter: [" + debugAfter + "]");
-        }
-
-        // Group all three groups together into final Artwork group
-        var allGroups = [];
-        if (sponsorGroup) allGroups.push(sponsorGroup);
-        if (hexGroup) allGroups.push(hexGroup);
-        if (masuriTabGroup) allGroups.push(masuriTabGroup);
-
-        // Debug: Check what we're grouping
-        var groupNames = [];
-        for (var i = 0; i < allGroups.length; i++) {
-            groupNames.push(allGroups[i].name);
-        }
-        alert("Grouping " + allGroups.length + " groups:\n" + groupNames.join(", "));
-
-        if (allGroups.length > 0) {
-            newDoc.selection = allGroups;
-            app.executeMenuCommand("group");
-            if (newDoc.selection.length > 0) {
-                newDoc.selection[0].name = "Artwork";
-            }
-            newDoc.selection = null;
-        }
-
-        // Debug: Check Masuri Tab position after grouping
-        if (masuriTabGroup) {
-            var debugAfterGroup = masuriTabGroup.geometricBounds;
-            alert("Masuri Tab AFTER grouping:\n[" + debugAfterGroup + "]");
         }
 
         // Remove any empty layers
