@@ -227,32 +227,48 @@ function main() {
         // This avoids issues with the group command failing on moved items
         var masterGroup = null;
 
-        // Debug: Check if all groups exist
-        alert("Before grouping:\nSponsor exists: " + (sponsorGroup != null) +
-              "\nHex exists: " + (hexGroup != null) +
-              "\nMasuri Tab exists: " + (masuriTabGroup != null) +
-              "\nSponsor items: " + (sponsorGroup ? sponsorGroup.pageItems.length : 0) +
-              "\nHex items: " + (hexGroup ? hexGroup.pageItems.length : 0) +
-              "\nMasuri Tab items: " + (masuriTabGroup ? masuriTabGroup.pageItems.length : 0));
+        // Ensure all groups are unlocked and visible
+        if (sponsorGroup) {
+            sponsorGroup.locked = false;
+            sponsorGroup.hidden = false;
+        }
+        if (hexGroup) {
+            hexGroup.locked = false;
+            hexGroup.hidden = false;
+        }
+        if (masuriTabGroup) {
+            masuriTabGroup.locked = false;
+            masuriTabGroup.hidden = false;
+        }
 
         if (sponsorGroup && hexGroup && masuriTabGroup) {
-            newDoc.selection = [sponsorGroup, hexGroup, masuriTabGroup];
+            // Clear selection first
+            newDoc.selection = null;
 
-            // Debug: Check selection before grouping
-            alert("Selection before group command:\nCount: " + newDoc.selection.length);
+            // Build selection array
+            var selArray = [];
+            selArray.push(sponsorGroup);
+            selArray.push(hexGroup);
+            selArray.push(masuriTabGroup);
 
-            app.executeMenuCommand("group");
+            // Set selection
+            newDoc.selection = selArray;
 
-            // Debug: Check selection after grouping
-            alert("Selection after group command:\nCount: " + newDoc.selection.length +
-                  "\nType: " + (newDoc.selection.length > 0 ? newDoc.selection[0].typename : "none"));
+            alert("Selection check:\nArray length: " + selArray.length +
+                  "\nSelection length: " + newDoc.selection.length +
+                  "\nLayers: S=" + sponsorGroup.layer.name +
+                  ", H=" + hexGroup.layer.name +
+                  ", M=" + masuriTabGroup.layer.name);
 
-            if (newDoc.selection.length > 0) {
-                masterGroup = newDoc.selection[0];
-                masterGroup.name = "Artwork";
-
-                // Debug: Check what's in the master group
-                alert("Master group created:\nGroup items: " + masterGroup.groupItems.length);
+            if (newDoc.selection.length === 3) {
+                app.executeMenuCommand("group");
+                if (newDoc.selection.length > 0) {
+                    masterGroup = newDoc.selection[0];
+                    masterGroup.name = "Artwork";
+                    alert("Master group created with " + masterGroup.groupItems.length + " groups");
+                }
+            } else {
+                alert("ERROR: Could not select all 3 groups! Only selected: " + newDoc.selection.length);
             }
             newDoc.selection = null;
         }
