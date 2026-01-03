@@ -80,30 +80,23 @@ function main() {
         var artboard = newDoc.artboards[0];
         var artboardRect = artboard.artboardRect;
 
-        // Find the existing Hex layer in the template
-        var hexLayer = null;
+        // Find the existing layer in template and rename to "Artwork"
+        var artworkLayer = null;
         for (var i = 0; i < newDoc.layers.length; i++) {
-            if (newDoc.layers[i].name == "Hex" || newDoc.layers[i].name == "Layer 1") {
-                hexLayer = newDoc.layers[i];
-                hexLayer.name = "Hex"; // Ensure it's named correctly
+            if (newDoc.layers[i].name == "Hex" || newDoc.layers[i].name == "Layer 1" || newDoc.layers[i].name == "Artwork") {
+                artworkLayer = newDoc.layers[i];
+                artworkLayer.name = "Artwork"; // Rename to Artwork
                 break;
             }
         }
 
-        // If hex layer not found, use the first layer
-        if (!hexLayer && newDoc.layers.length > 0) {
-            hexLayer = newDoc.layers[0];
-            hexLayer.name = "Hex";
+        // If artwork layer not found, use the first layer
+        if (!artworkLayer && newDoc.layers.length > 0) {
+            artworkLayer = newDoc.layers[0];
+            artworkLayer.name = "Artwork";
         }
 
-        // Create new layers for sponsor and Masuri Tab
-        var sponsorLayer = newDoc.layers.add();
-        sponsorLayer.name = "Sponsor";
-
-        var masuriTabLayer = newDoc.layers.add();
-        masuriTabLayer.name = "Masuri Tab";
-
-        // Copy all artwork from source document to Sponsor layer
+        // Copy all artwork from source document to Artwork layer
         sourceDoc.activate();
         sourceDoc.selectObjectsOnActiveArtboard();
 
@@ -122,100 +115,159 @@ function main() {
             sourceDoc.selection = filteredSelection;
         }
 
+        // Store sponsor content for later grouping
+        var sponsorItems = [];
         if (sourceDoc.selection.length > 0) {
             app.copy();
 
             newDoc.activate();
-            sponsorLayer.locked = false;
-            newDoc.activeLayer = sponsorLayer;
+            artworkLayer.locked = false;
+            newDoc.activeLayer = artworkLayer;
             app.paste();
 
             // Scale the pasted sponsor content
             // Target: 11cm wide or 8cm high (whichever is greater in original)
             scaleToFit(newDoc.selection, 11, 8);
 
+            // Store sponsor items for grouping
+            for (var i = 0; i < newDoc.selection.length; i++) {
+                sponsorItems.push(newDoc.selection[i]);
+            }
+
             // Deselect all
             newDoc.selection = null;
         }
 
-        // Hex pattern already exists in template - just apply color
+        // Hex pattern already exists in template on Artwork layer - just apply color
         newDoc.activate();
-        newDoc.activeLayer = hexLayer;
-        hexLayer.locked = false;
+        newDoc.activeLayer = artworkLayer;
+        artworkLayer.locked = false;
 
-        // Apply selected color to hex layer
-        applyColorToLayer(hexLayer, hexColor);
+        // Store hex items before adding more content
+        var hexItems = [];
+        for (var i = 0; i < artworkLayer.pageItems.length; i++) {
+            var item = artworkLayer.pageItems[i];
+            // Skip sponsor items we just added
+            var isSponsor = false;
+            for (var j = 0; j < sponsorItems.length; j++) {
+                if (item == sponsorItems[j]) {
+                    isSponsor = true;
+                    break;
+                }
+            }
+            if (!isSponsor) {
+                hexItems.push(item);
+            }
+        }
 
-        // Import MASURI TAB.svg into Masuri Tab layer
+        // Apply selected color to hex items
+        applyColorToItems(hexItems, hexColor);
+
+        // Import MASURI TAB.svg into Artwork layer
         newDoc.activate();
-        newDoc.activeLayer = masuriTabLayer;
-        masuriTabLayer.locked = false;
-        importSVGByOpening(masuriTabSVGFile, newDoc, masuriTabLayer);
+        newDoc.activeLayer = artworkLayer;
+        artworkLayer.locked = false;
+
+        var itemCountBefore = artworkLayer.pageItems.length;
+        importSVGByOpening(masuriTabSVGFile, newDoc, artworkLayer);
+
+        // Store Masuri Tab items
+        var masuriTabItems = [];
+        for (var i = itemCountBefore; i < artworkLayer.pageItems.length; i++) {
+            masuriTabItems.push(artworkLayer.pageItems[i]);
+        }
 
         // Import GUIDES.svg and convert to guides
         var guidesLayer = importGuidesFromSVG(guidesSVGFile, newDoc);
-
-        // Group all items on each layer
-        groupLayerContents(sponsorLayer);
-        groupLayerContents(hexLayer);
-        groupLayerContents(masuriTabLayer);
         if (guidesLayer) {
             groupLayerContents(guidesLayer);
-            // Lock the Guides layer
             guidesLayer.locked = true;
         }
 
-        // Name the groups
-        if (sponsorLayer.groupItems.length > 0) {
-            sponsorLayer.groupItems[0].name = "Sponsor";
-        }
-        if (hexLayer.groupItems.length > 0) {
-            hexLayer.groupItems[0].name = "Hex";
-        }
-        if (masuriTabLayer.groupItems.length > 0) {
-            masuriTabLayer.groupItems[0].name = "Masuri Tab";
-        }
+        // Group each set of items separately
+        newDoc.selection = null;
 
-        // Position sponsor relative to hex layer (hex stays at natural import position)
-        positionSponsorLayer(sponsorLayer, hexLayer, sponsorPosition);
-
-        // Remove hex paths that overlap with sponsor content
-        removeOverlappingHexPaths(hexLayer, sponsorLayer);
-
-        // Group hex and sponsor together and center on artboard
-        groupAndCenterLayers(newDoc, [sponsorLayer, hexLayer]);
-
-        // Position Masuri Tab layer based on sponsor position mode (after centering hex+sponsor)
-        if (sponsorPosition == "Bottom Sponsor") {
-            positionLayerGroup(masuriTabLayer, 5.7281, 18.8218);
-        } else if (sponsorPosition == "Middle Sponsor") {
-            positionLayerGroup(masuriTabLayer, 5.7281, 8.4713);
+        // Group Sponsor items
+        var sponsorGroup = null;
+        if (sponsorItems.length > 0) {
+            newDoc.selection = sponsorItems;
+            app.executeMenuCommand("group");
+            if (newDoc.selection.length > 0) {
+                sponsorGroup = newDoc.selection[0];
+                sponsorGroup.name = "Sponsor";
+            }
+            newDoc.selection = null;
         }
 
-        // Group Masuri Tab with the centered hex+sponsor group into final "Artwork" group
-        var artworkGroups = [];
-        // Find the hex+sponsor "Artwork" group
-        for (var i = 0; i < newDoc.groupItems.length; i++) {
-            if (newDoc.groupItems[i].name == "Artwork") {
-                artworkGroups.push(newDoc.groupItems[i]);
-                break;
+        // Group Hex items
+        var hexGroup = null;
+        if (hexItems.length > 0) {
+            newDoc.selection = hexItems;
+            app.executeMenuCommand("group");
+            if (newDoc.selection.length > 0) {
+                hexGroup = newDoc.selection[0];
+                hexGroup.name = "Hex";
+            }
+            newDoc.selection = null;
+        }
+
+        // Group Masuri Tab items
+        var masuriTabGroup = null;
+        if (masuriTabItems.length > 0) {
+            newDoc.selection = masuriTabItems;
+            app.executeMenuCommand("group");
+            if (newDoc.selection.length > 0) {
+                masuriTabGroup = newDoc.selection[0];
+                masuriTabGroup.name = "Masuri Tab";
+            }
+            newDoc.selection = null;
+        }
+
+        // Position sponsor relative to hex
+        if (sponsorGroup && hexGroup) {
+            positionGroupRelativeToGroup(sponsorGroup, hexGroup, sponsorPosition);
+        }
+
+        // Remove hex paths that overlap with sponsor
+        if (hexGroup && sponsorGroup) {
+            removeOverlappingPathsInGroups(hexGroup, sponsorGroup);
+        }
+
+        // Center hex and sponsor together
+        if (hexGroup && sponsorGroup) {
+            var centerGroups = [sponsorGroup, hexGroup];
+            newDoc.selection = centerGroups;
+            app.executeMenuCommand("group");
+            var hexSponsorGroup = newDoc.selection[0];
+            hexSponsorGroup.name = "Hex+Sponsor";
+
+            // Center this group on artboard
+            centerGroupOnArtboard(hexSponsorGroup, artboardRect);
+            newDoc.selection = null;
+        }
+
+        // Position Masuri Tab
+        if (masuriTabGroup) {
+            if (sponsorPosition == "Bottom Sponsor") {
+                positionGroupAbsolute(masuriTabGroup, 5.7281, 18.8218);
+            } else if (sponsorPosition == "Middle Sponsor") {
+                positionGroupAbsolute(masuriTabGroup, 5.7281, 8.4713);
             }
         }
-        // Add Masuri Tab group
-        if (masuriTabLayer.groupItems.length > 0) {
-            artworkGroups.push(masuriTabLayer.groupItems[0]);
+
+        // Group all three groups together into final Artwork group
+        var allGroups = [];
+        for (var i = 0; i < artworkLayer.groupItems.length; i++) {
+            allGroups.push(artworkLayer.groupItems[i]);
         }
 
-        // Group them together
-        if (artworkGroups.length > 0) {
-            newDoc.selection = artworkGroups;
+        if (allGroups.length > 0) {
+            newDoc.selection = allGroups;
             app.executeMenuCommand("group");
             if (newDoc.selection.length > 0) {
                 newDoc.selection[0].name = "Artwork";
-                if (newDoc.selection[0].layer) {
-                    newDoc.selection[0].layer.name = "Artwork";
-                }
             }
+            newDoc.selection = null;
         }
 
         // Remove any empty layers
@@ -916,4 +968,107 @@ function groupAndCenterLayers(doc, layers) {
     } catch (e) {
         throw new Error("Failed to group and center layers: " + e.message);
     }
+}
+/**
+ * Apply color to an array of page items
+ */
+function applyColorToItems(items, rgbColor) {
+    for (var i = 0; i < items.length; i++) {
+        var item = items[i];
+        if (item.typename == "PathItem") {
+            item.filled = true;
+            item.fillColor = rgbColor;
+            item.stroked = false;
+        } else if (item.typename == "GroupItem") {
+            applyColorToItems(item.pageItems, rgbColor);
+        } else if (item.typename == "CompoundPathItem") {
+            applyColorToItems(item.pathItems, rgbColor);
+        }
+    }
+}
+
+/**
+ * Position one group relative to another
+ */
+function positionGroupRelativeToGroup(sponsorGroup, hexGroup, positionType) {
+    var sponsorBounds = sponsorGroup.geometricBounds;
+    var hexBounds = hexGroup.geometricBounds;
+
+    var sponsorWidth = sponsorBounds[2] - sponsorBounds[0];
+    var sponsorHeight = sponsorBounds[1] - sponsorBounds[3];
+    var sponsorCenterX = sponsorBounds[0] + sponsorWidth / 2;
+    var sponsorCenterY = sponsorBounds[3] + sponsorHeight / 2;
+
+    var hexWidth = hexBounds[2] - hexBounds[0];
+    var hexHeight = hexBounds[1] - hexBounds[3];
+    var hexCenterX = hexBounds[0] + hexWidth / 2;
+    var hexCenterY = hexBounds[3] + hexHeight / 2;
+
+    var deltaX = 0;
+    var deltaY = 0;
+
+    if (positionType == "Bottom Sponsor") {
+        deltaX = hexCenterX - sponsorCenterX;
+        deltaY = hexBounds[3] - sponsorBounds[3];
+    } else if (positionType == "Middle Sponsor") {
+        deltaX = hexCenterX - sponsorCenterX;
+        deltaY = hexCenterY - sponsorCenterY;
+    }
+
+    sponsorGroup.translate(deltaX, deltaY);
+}
+
+/**
+ * Remove paths in hexGroup that overlap with sponsorGroup
+ */
+function removeOverlappingPathsInGroups(hexGroup, sponsorGroup) {
+    var sponsorBounds = sponsorGroup.geometricBounds;
+    var hexPaths = [];
+    collectPathItems(hexGroup.pageItems, hexPaths);
+
+    var pathsToDelete = [];
+    for (var i = 0; i < hexPaths.length; i++) {
+        var pathBounds = hexPaths[i].geometricBounds;
+        if (boundsIntersect(pathBounds, sponsorBounds)) {
+            pathsToDelete.push(hexPaths[i]);
+        }
+    }
+
+    for (var i = 0; i < pathsToDelete.length; i++) {
+        pathsToDelete[i].remove();
+    }
+}
+
+/**
+ * Center a group on the artboard
+ */
+function centerGroupOnArtboard(group, artboardRect) {
+    var artboardCenterX = (artboardRect[0] + artboardRect[2]) / 2;
+    var artboardCenterY = (artboardRect[1] + artboardRect[3]) / 2;
+
+    var groupBounds = group.geometricBounds;
+    var groupCenterX = (groupBounds[0] + groupBounds[2]) / 2;
+    var groupCenterY = (groupBounds[1] + groupBounds[3]) / 2;
+
+    var deltaX = artboardCenterX - groupCenterX;
+    var deltaY = artboardCenterY - groupCenterY;
+
+    group.translate(deltaX, deltaY);
+}
+
+/**
+ * Position a group at absolute coordinates
+ */
+function positionGroupAbsolute(group, xCm, yCm) {
+    var xPoints = xCm * POINTS_PER_CM;
+    var yPoints = yCm * POINTS_PER_CM;
+
+    var bounds = group.geometricBounds;
+    var currentLeft = bounds[0];
+    var currentTop = bounds[1];
+
+    var deltaX = xPoints - currentLeft;
+    var deltaY = -yPoints - currentTop;
+
+    group.translate(deltaX, deltaY);
 }
