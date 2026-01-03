@@ -233,17 +233,9 @@ function main() {
             removeOverlappingPathsInGroups(hexGroup, sponsorGroup);
         }
 
-        // Center hex and sponsor together
+        // Center hex and sponsor together (without grouping them yet)
         if (hexGroup && sponsorGroup) {
-            var centerGroups = [sponsorGroup, hexGroup];
-            newDoc.selection = centerGroups;
-            app.executeMenuCommand("group");
-            var hexSponsorGroup = newDoc.selection[0];
-            hexSponsorGroup.name = "Hex+Sponsor";
-
-            // Center this group on artboard
-            centerGroupOnArtboard(hexSponsorGroup, artboardRect);
-            newDoc.selection = null;
+            centerTwoGroupsOnArtboard(hexGroup, sponsorGroup, artboardRect);
         }
 
         // Position Masuri Tab
@@ -257,9 +249,9 @@ function main() {
 
         // Group all three groups together into final Artwork group
         var allGroups = [];
-        for (var i = 0; i < artworkLayer.groupItems.length; i++) {
-            allGroups.push(artworkLayer.groupItems[i]);
-        }
+        if (sponsorGroup) allGroups.push(sponsorGroup);
+        if (hexGroup) allGroups.push(hexGroup);
+        if (masuriTabGroup) allGroups.push(masuriTabGroup);
 
         if (allGroups.length > 0) {
             newDoc.selection = allGroups;
@@ -1071,4 +1063,35 @@ function positionGroupAbsolute(group, xCm, yCm) {
     var deltaY = -yPoints - currentTop;
 
     group.translate(deltaX, deltaY);
+}
+
+/**
+ * Center two groups together on the artboard without grouping them
+ */
+function centerTwoGroupsOnArtboard(group1, group2, artboardRect) {
+    // Get bounds of both groups
+    var bounds1 = group1.geometricBounds;
+    var bounds2 = group2.geometricBounds;
+
+    // Calculate combined bounds
+    var combinedLeft = Math.min(bounds1[0], bounds2[0]);
+    var combinedTop = Math.max(bounds1[1], bounds2[1]);
+    var combinedRight = Math.max(bounds1[2], bounds2[2]);
+    var combinedBottom = Math.min(bounds1[3], bounds2[3]);
+
+    // Calculate combined center
+    var combinedCenterX = (combinedLeft + combinedRight) / 2;
+    var combinedCenterY = (combinedTop + combinedBottom) / 2;
+
+    // Calculate artboard center
+    var artboardCenterX = (artboardRect[0] + artboardRect[2]) / 2;
+    var artboardCenterY = (artboardRect[1] + artboardRect[3]) / 2;
+
+    // Calculate translation needed
+    var deltaX = artboardCenterX - combinedCenterX;
+    var deltaY = artboardCenterY - combinedCenterY;
+
+    // Translate both groups
+    group1.translate(deltaX, deltaY);
+    group2.translate(deltaX, deltaY);
 }
