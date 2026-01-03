@@ -43,14 +43,14 @@ function main() {
         var scriptFile = new File($.fileName);
         var scriptFolder = scriptFile.parent;
 
-        // Define SVG file paths
-        var hexSVGFile = new File(scriptFolder + "/assets/HEX.svg");
+        // Define template and SVG file paths
+        var hexTemplateFile = new File(scriptFolder + "/assets/HEX.eps");
         var masuriTabSVGFile = new File(scriptFolder + "/assets/MASURI TAB.svg");
         var guidesSVGFile = new File(scriptFolder + "/assets/GUIDES.svg");
 
-        // Verify SVG files exist
-        if (!hexSVGFile.exists) {
-            alert("HEX.svg not found at: " + hexSVGFile.fsName);
+        // Verify template and SVG files exist
+        if (!hexTemplateFile.exists) {
+            alert("HEX.eps template not found at: " + hexTemplateFile.fsName);
             return;
         }
         if (!masuriTabSVGFile.exists) {
@@ -62,39 +62,43 @@ function main() {
             return;
         }
 
-        // Create new document with centimeter units
-        var docPreset = new DocumentPreset();
-        docPreset.units = RulerUnits.Centimeters;  // Set units FIRST
-        docPreset.width = 368.504; // 13cm in points
-        docPreset.height = 963.78; // 34cm in points
-        docPreset.colorMode = DocumentColorSpace.CMYK;
+        // Open HEX.eps template (already 13cm × 34cm CMYK with hex pattern)
+        var newDoc = app.open(hexTemplateFile);
 
-
-        var newDoc = app.documents.addDocument("Print", docPreset);
+        // OPTION 4 PROTECTION: Clear file path so template can't be overwritten
+        // This makes Illustrator treat it as an unsaved document
+        // User will be prompted with "Save As" dialog instead of "Save"
+        try {
+            newDoc.saved = false;
+        } catch (e) {
+            // If saved property can't be set, continue anyway
+        }
 
         app.preferences.setBooleanPreference("showTransparencyGrid", true);
 
-
-        // Set ruler origin so that the top-left corner of the artboard is at 0,0
-        // Get the artboard bounds
+        // Get artboard bounds for ruler origin
         var artboard = newDoc.artboards[0];
-        var artboardRect = artboard.artboardRect; // [left, top, right, bottom]
+        var artboardRect = artboard.artboardRect;
 
-        // Set ruler origin to the top-left corner of the artboard
-        newDoc.rulerOrigin = [artboardRect[0], artboardRect[1]];
-
-        // Remove the default layer
-        if (newDoc.layers.length > 0) {
-            newDoc.layers[0].remove();
+        // Find the existing Hex layer in the template
+        var hexLayer = null;
+        for (var i = 0; i < newDoc.layers.length; i++) {
+            if (newDoc.layers[i].name == "Hex" || newDoc.layers[i].name == "Layer 1") {
+                hexLayer = newDoc.layers[i];
+                hexLayer.name = "Hex"; // Ensure it's named correctly
+                break;
+            }
         }
 
-        // Create layers in order from bottom to top
-        // In Illustrator, the last layer added becomes the topmost layer
+        // If hex layer not found, use the first layer
+        if (!hexLayer && newDoc.layers.length > 0) {
+            hexLayer = newDoc.layers[0];
+            hexLayer.name = "Hex";
+        }
+
+        // Create new layers for sponsor and Masuri Tab
         var sponsorLayer = newDoc.layers.add();
         sponsorLayer.name = "Sponsor";
-
-        var hexLayer = newDoc.layers.add();
-        hexLayer.name = "Hex";
 
         var masuriTabLayer = newDoc.layers.add();
         masuriTabLayer.name = "Masuri Tab";
@@ -134,11 +138,10 @@ function main() {
             newDoc.selection = null;
         }
 
-        // Import HEX.svg into Hex layer
+        // Hex pattern already exists in template - just apply color
         newDoc.activate();
         newDoc.activeLayer = hexLayer;
         hexLayer.locked = false;
-        importSVGByOpening(hexSVGFile, newDoc, hexLayer);
 
         // Apply selected color to hex layer
         applyColorToLayer(hexLayer, hexColor);
