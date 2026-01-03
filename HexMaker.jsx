@@ -256,6 +256,13 @@ function main() {
         if (hexGroup) allGroups.push(hexGroup);
         if (masuriTabGroup) allGroups.push(masuriTabGroup);
 
+        // Debug: Check what we're grouping
+        var groupNames = [];
+        for (var i = 0; i < allGroups.length; i++) {
+            groupNames.push(allGroups[i].name);
+        }
+        alert("Grouping " + allGroups.length + " groups:\n" + groupNames.join(", "));
+
         if (allGroups.length > 0) {
             newDoc.selection = allGroups;
             app.executeMenuCommand("group");
