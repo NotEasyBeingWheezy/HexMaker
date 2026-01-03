@@ -241,45 +241,34 @@ function main() {
             masuriTabGroup.hidden = false;
         }
 
+        var sponsorHexGroup = null;
         if (sponsorGroup && hexGroup && masuriTabGroup) {
-            // Debug: Check group types
-            alert("Group types:\nS=" + sponsorGroup.typename + "\nH=" + hexGroup.typename + "\nM=" + masuriTabGroup.typename);
-
-            // Try selecting each individually to find which one fails
-            newDoc.selection = null;
-            newDoc.selection = [sponsorGroup];
-            var sponsorSelects = (newDoc.selection.length == 1);
-
-            newDoc.selection = null;
-            newDoc.selection = [hexGroup];
-            var hexSelects = (newDoc.selection.length == 1);
-
-            newDoc.selection = null;
-            newDoc.selection = [masuriTabGroup];
-            var masuriSelects = (newDoc.selection.length == 1);
-
-            alert("Can select individually?\nSponsor: " + sponsorSelects + "\nHex: " + hexSelects + "\nMasuri Tab: " + masuriSelects);
-
-            // If Masuri Tab can't be selected, there's a problem with that group
-            if (!masuriSelects) {
-                alert("Masuri Tab group cannot be selected!\nLayer: " + masuriTabGroup.layer.name +
-                      "\nLocked: " + masuriTabGroup.locked +
-                      "\nHidden: " + masuriTabGroup.hidden +
-                      "\nParent: " + (masuriTabGroup.parent ? masuriTabGroup.parent.typename : "none"));
-            }
-
-            // Try grouping
-            newDoc.selection = [sponsorGroup, hexGroup, masuriTabGroup];
-            if (newDoc.selection.length === 3) {
+            // WORKAROUND: Can't select all 3 together, so group in two steps
+            // Step 1: Group sponsor and hex together
+            newDoc.selection = [sponsorGroup, hexGroup];
+            if (newDoc.selection.length === 2) {
                 app.executeMenuCommand("group");
                 if (newDoc.selection.length > 0) {
-                    masterGroup = newDoc.selection[0];
-                    masterGroup.name = "Artwork";
+                    sponsorHexGroup = newDoc.selection[0];
+                    sponsorHexGroup.name = "SponsorHex_Temp";
                 }
-            } else {
-                alert("Could only select " + newDoc.selection.length + " out of 3 groups");
+                newDoc.selection = null;
             }
-            newDoc.selection = null;
+
+            // Step 2: Group that with masuri tab to create final Artwork group
+            if (sponsorHexGroup && masuriTabGroup) {
+                newDoc.selection = [sponsorHexGroup, masuriTabGroup];
+                if (newDoc.selection.length === 2) {
+                    app.executeMenuCommand("group");
+                    if (newDoc.selection.length > 0) {
+                        masterGroup = newDoc.selection[0];
+                        masterGroup.name = "Artwork";
+                    }
+                } else {
+                    alert("ERROR: Could not group sponsorHex with masuriTab. Selected: " + newDoc.selection.length);
+                }
+                newDoc.selection = null;
+            }
         }
 
         // Now position the individual groups within the master group
