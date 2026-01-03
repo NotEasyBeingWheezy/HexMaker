@@ -240,11 +240,14 @@ function main() {
 
         // Position Masuri Tab
         if (masuriTabGroup) {
+            var debugBefore = masuriTabGroup.geometricBounds;
             if (sponsorPosition == "Bottom Sponsor") {
                 positionGroupAbsolute(masuriTabGroup, 5.7281, 18.8218, artboardRect);
             } else if (sponsorPosition == "Middle Sponsor") {
                 positionGroupAbsolute(masuriTabGroup, 5.7281, 8.4713, artboardRect);
             }
+            var debugAfter = masuriTabGroup.geometricBounds;
+            alert("Masuri Tab Debug:\nArtboard: [" + artboardRect + "]\nBefore: [" + debugBefore + "]\nAfter: [" + debugAfter + "]");
         }
 
         // Group all three groups together into final Artwork group
