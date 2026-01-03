@@ -241,19 +241,7 @@ function main() {
             masuriTabGroup.hidden = false;
         }
 
-        // WORKAROUND: Illustrator won't multi-select these groups, so manually move them
-        if (sponsorGroup && hexGroup && masuriTabGroup) {
-            // Create a new master group on the artwork layer
-            var masterGroup = artworkLayer.groupItems.add();
-            masterGroup.name = "Artwork";
-
-            // Move all three groups into the master group
-            sponsorGroup.moveToBeginning(masterGroup);
-            hexGroup.moveToBeginning(masterGroup);
-            masuriTabGroup.moveToBeginning(masterGroup);
-        }
-
-        // Now position the individual groups within the master group
+        // Position the individual groups FIRST, before grouping
         // Position sponsor relative to hex
         if (sponsorGroup && hexGroup) {
             positionGroupRelativeToGroup(sponsorGroup, hexGroup, sponsorPosition);
@@ -276,6 +264,19 @@ function main() {
             } else if (sponsorPosition == "Middle Sponsor") {
                 positionGroupAbsolute(masuriTabGroup, 5.7281, 8.4713, artboardRect);
             }
+        }
+
+        // NOW group them together after positioning
+        // WORKAROUND: Illustrator won't multi-select these groups, so manually move them
+        if (sponsorGroup && hexGroup && masuriTabGroup) {
+            // Create a new master group on the artwork layer
+            var masterGroup = artworkLayer.groupItems.add();
+            masterGroup.name = "Artwork";
+
+            // Move all three groups into the master group
+            sponsorGroup.moveToBeginning(masterGroup);
+            hexGroup.moveToBeginning(masterGroup);
+            masuriTabGroup.moveToBeginning(masterGroup);
         }
 
         // Remove any empty layers
