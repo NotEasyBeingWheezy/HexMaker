@@ -62,38 +62,19 @@ function main() {
             return;
         }
 
-        // Open HEX.eps template temporarily to get its content
-        var templateDoc = app.open(hexTemplateFile);
+        // Open HEX.eps template (already 13cm × 34cm CMYK with hex pattern)
+        var newDoc = app.open(hexTemplateFile);
 
-        // Create a new blank document with same settings
-        var docPreset = new DocumentPreset();
-        docPreset.width = 13 * POINTS_PER_CM;
-        docPreset.height = 34 * POINTS_PER_CM;
-        docPreset.colorMode = DocumentColorSpace.CMYK;
-        docPreset.units = RulerUnits.Centimeters;
-
-        var newDoc = app.documents.addDocument("Untitled", docPreset);
-
-        // Copy all content from template to new document
-        templateDoc.activate();
-        templateDoc.selectObjectsOnActiveArtboard();
-        if (templateDoc.selection.length > 0) {
-            app.copy();
-            newDoc.activate();
-            app.paste();
+        // OPTION 4 PROTECTION: Clear file path so template can't be overwritten
+        // This makes Illustrator treat it as an unsaved document
+        // User will be prompted with "Save As" dialog instead of "Save"
+        try {
+            newDoc.saved = false;
+            // Try to clear the fullName to make it show as "Untitled"
+            newDoc.fullName = undefined;
+        } catch (e) {
+            // If properties can't be set, continue anyway
         }
-
-        // Copy layers structure
-        for (var i = 0; i < templateDoc.layers.length; i++) {
-            var layer = templateDoc.layers[i];
-            // The paste operation should have created layers, just ensure they exist
-        }
-
-        // Close template without saving
-        templateDoc.close(SaveOptions.DONOTSAVECHANGES);
-
-        // Now work with the new document
-        newDoc.activate();
 
         app.preferences.setBooleanPreference("showTransparencyGrid", true);
 
