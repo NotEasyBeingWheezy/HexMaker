@@ -62,6 +62,15 @@ function main() {
             return;
         }
 
+        // Check if HEX.eps template is already open and close it to ensure fresh copy
+        for (var i = app.documents.length - 1; i >= 0; i--) {
+            var doc = app.documents[i];
+            // Check if this document is the template or was created from it
+            if (doc.fullName && doc.fullName.toString() == hexTemplateFile.toString()) {
+                doc.close(SaveOptions.DONOTSAVECHANGES);
+            }
+        }
+
         // Open HEX.eps template (already 13cm × 34cm CMYK with hex pattern)
         var newDoc = app.open(hexTemplateFile);
 
