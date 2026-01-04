@@ -70,8 +70,10 @@ function main() {
         // User will be prompted with "Save As" dialog instead of "Save"
         try {
             newDoc.saved = false;
+            // Change document name to "Untitled" instead of template name
+            newDoc.name = "Untitled";
         } catch (e) {
-            // If saved property can't be set, continue anyway
+            // If properties can't be set, continue anyway
         }
 
         app.preferences.setBooleanPreference("showTransparencyGrid", true);
